@@ -16,6 +16,7 @@ def RADIal_collate(batch):
         # 256,64,32 -> 32,256,64
         # 256,64,256 -> 256,256,64
         encoded_label.append(torch.tensor(out_label))
+        print('encoded_label in dataloader', encoded_label.shape)
         labels.append(torch.from_numpy(box_labels))
         class_maps.append(torch.tensor(class_map))
 
