@@ -14,6 +14,7 @@ from dataset.matlab_dataset import MATLAB
 from dataset.encoder_modi import ra_encoder
 import matplotlib.pyplot as plt
 from loss import pixor_loss
+import itertools # for resume the iteration from a specific point
 
 def main(config, checkpoint_filename,difficult):
 
@@ -37,14 +38,14 @@ def main(config, checkpoint_filename,difficult):
                         detection_head = config['model']['DetectionHead'],
                         segmentation_head = config['model']['SegmentationHead'])
 
-        # dataset = RADIal(root_dir = config['dataset']['root_dir'],
-        #                     statistics= config['dataset']['statistics'],
-        #                     encoder=enc.encode,
-        #                     difficult=True,perform_FFT=config['data_mode'])
+        dataset = RADIal(root_dir = config['dataset']['root_dir'],
+                            statistics= config['dataset']['statistics'],
+                            encoder=enc.encode,
+                            difficult=True,perform_FFT=config['data_mode'])
         
-        dataset = MATLAB(root_dir = config['dataset']['root_dir'],
-                         statistics= config['dataset']['statistics'], 
-                         encoder=enc.encode)
+        # dataset = MATLAB(root_dir = '/imec/other/ruoyumsc/users/chu/matlab-radar-automotive/simulation_data_16rx/', #  simulation_data_DDA
+        #                  statistics= config['dataset']['statistics'], 
+        #                  encoder=enc.encode)
 
     else:
         net = FFTRadNet_ViT_ADC(patch_size = config['model']['patch_size'],
@@ -75,8 +76,16 @@ def main(config, checkpoint_filename,difficult):
     # Define the directory where you want to save the plots
     save_dir = "./plot/"
     os.makedirs(save_dir, exist_ok=True)
-    
-    for idx, data in enumerate(dataset):
+    lowest_loss = float('inf') # 13.1834 # index 4343 
+    lowest_loss_index = -1
+    lowest_loss_data = None
+    intermediate = None
+
+    start_index = 0
+    for idx in range(start_index, len(dataset)):
+        data = dataset[idx]
+    #for idx, data in enumerate(dataset): 
+        #print(idx,len(dataset))
         # data is composed of [radar_FFT, segmap,out_label,box_labels,image]
         inputs = torch.tensor(data[0]).permute(2,0,1).to('cuda').unsqueeze(0)
         with torch.set_grad_enabled(False):
@@ -90,15 +99,35 @@ def main(config, checkpoint_filename,difficult):
                 intermediate = None
 
         
-        # hmi = DisplayHMI(data[4], data[0],outputs,enc,config,intermediate)
+        #print('outputs[Detection]', outputs['Detection'].shape)
+        label_map = torch.tensor(data[2]).to('cuda').float().unsqueeze(0)
+        #print('label_map shape: ', label_map.shape)
+        classif_loss,reg_loss = pixor_loss(outputs['Detection'], label_map,config['losses'])
+        loss = classif_loss + reg_loss
 
-        # # cv2.imshow('FFTRadNet',hmi)
-        # save_path = os.path.join(save_dir, f'FFTRadNet_image_{idx}.jpg')
-        # cv2.imwrite(save_path, hmi)
+        if classif_loss < lowest_loss:
+            lowest_loss = classif_loss
+            lowest_loss_index = idx
+            lowest_loss_data = data
+            print('classif_loss: ', classif_loss)
+            print('reg_loss: ', reg_loss)
 
-        # cv2.destroyAllWindows()
+            # Save the lowest_loss_data to a .npy file
+            print('lowest_loss_index: ', lowest_loss_index)
+            print("lowest_loss: ", lowest_loss)
+            np.savez('/imec/other/ruoyumsc/users/chu/data/lowest_clssifloss_data.npy', *lowest_loss_data)
 
-        # rd_plot(inputs[0, 0, :, :]+inputs[0, 16, :, :]*1j, idx)
+            hmi = DisplayHMI(data[4], data[0],outputs,enc,config,intermediate)
+
+            # cv2.imshow('FFTRadNet',hmi)
+            save_path = os.path.join(save_dir, f'FFTRadNet_image_{idx}.jpg')
+            cv2.imwrite(save_path, hmi)
+            print("plot save to ", save_path)
+
+        # break
+
+
+        #rd_plot(inputs[0, 0, :, :]+inputs[0, 16, :, :]*1j, idx)
 
         # # Press Q on keyboard to  exit
         # if cv2.waitKey(25) & 0xFF == ord('q'):
@@ -115,24 +144,30 @@ def main(config, checkpoint_filename,difficult):
         # plot_filepath = os.path.join(save_dir, plot_filename)
         # plt.savefig(plot_filepath, bbox_inches='tight', pad_inches=0)
         # plt.close()
-
         # print(f"Plot saved to {save_path}")
 
-
-
-        label_map = torch.tensor(data[2]).to('cuda').float().unsqueeze(0)
-        #print('label_map shape: ', label_map.shape)
-        classif_loss,reg_loss = pixor_loss(outputs['Detection'], label_map,config['losses'])
-        print("classif_loss: ", classif_loss, "reg_loss: ", reg_loss)
+        
         #print('output size: ', outputs['Detection'].shape) 1, 3, 128, 224
         #print('label map size: ',  torch.tensor(data[2]).to('cuda').float().shape) 3 ,128, 224
         # plot output
-        if (idx == 50):
-            # plot the prediction and ground truth, pixel occupied with vehicle (RA coordinate) 
-            detection_plot(outputs['Detection'], label_map, idx)
-            matrix_plot(outputs['Detection'], label_map, idx)
+        # if (idx >= 50):
+        #     # plot the prediction and ground truth, pixel occupied with vehicle (RA coordinate) 
+        #     detection_plot(outputs['Detection'], label_map, idx)
+        #     matrix_plot(outputs['Detection'], label_map, idx)
 
-        
+    # if lowest_loss_data is not None:
+    #     print(f'The file with the lowest loss is at index {lowest_loss_index} with a loss of {lowest_loss}')
+
+    #     data = dataset[4343]
+
+    #     # Plot the data with the lowest loss
+    #     hmi = DisplayHMI(data[4], data[0],outputs,enc,config,intermediate)
+
+    #     # cv2.imshow('FFTRadNet',hmi)
+    #     save_path = os.path.join(save_dir, f'FFTRadNet_image_{idx}.jpg')
+    #     cv2.imwrite(save_path, hmi)
+    # else:
+    #     print('No valid data was found to plot.')    
 
     #cv2.destroyAllWindows()
 
@@ -141,7 +176,7 @@ def detection_plot(predictions, labels, idx):
     prediction = predictions[0, 0, :, :]
     #print(prediction[0, 0:10, 0])
     #target_prediction = (prediction > 0.5).float()
-    label = labels[0, 0, :, :]
+    label = labels[0, :, :]
     # Specify the directory to save the plot
     directory = './plot/'
 
@@ -190,7 +225,7 @@ def matrix_plot(predictions, labels, idx):
 
     prediction = predictions[0, 0, :, :].detach().cpu().numpy().copy()
     #target_prediction = (prediction > 0.5).float()
-    label = labels[0, 0, :, :].detach().cpu().numpy().copy()
+    label = labels[0, :, :].detach().cpu().numpy().copy()
     #print('label shape', label.shape)
 
     m1 = axs[0].imshow(prediction, cmap='magma', interpolation='none')

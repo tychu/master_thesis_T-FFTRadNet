@@ -98,7 +98,7 @@ def process_predictions_FFT(batch_predictions, confidence_threshold=0.1, nms_thr
 
     point_cloud_reg_predictions = RA_to_cartesian_box(batch_predictions)
     point_cloud_reg_predictions = np.asarray(point_cloud_reg_predictions)
-    point_cloud_class_predictions = batch_predictions[:,-1]
+    point_cloud_class_predictions = batch_predictions[:,-1] # pred_obj[:, -1] -> softmax probability(torch.sigmoid(self.clshead(x))), map[0, R_bin, A_bin]
 
     # get valid detections
     validity_mask = np.where(point_cloud_class_predictions > confidence_threshold, True, False)
@@ -117,16 +117,18 @@ def process_predictions_FFT(batch_predictions, confidence_threshold=0.1, nms_thr
 def DisplayHMI(image, input,model_outputs,encoder,config,intermediate=None):
 
     # Model outputs
-    pred_obj = model_outputs['Detection'].detach().cpu().numpy().copy()[0]
+    pred_obj = model_outputs['Detection'].detach().cpu().numpy().copy()[0] # detection head
     out_seg = torch.sigmoid(model_outputs['Segmentation']).detach().cpu().numpy().copy()[0,0]
 
     # Decode the output detection map
     pred_obj = encoder.decode(pred_obj,0.05)
     pred_obj = np.asarray(pred_obj)
+    
 
     # process prediction: polar to cartesian, NMS...
     if(len(pred_obj)>0):
         pred_obj = process_predictions_FFT(pred_obj,confidence_threshold=0.2)
+        #print(pred_obj)
 
     ## FFT
     if config['data_mode'] != 'ADC':
@@ -149,6 +151,10 @@ def DisplayHMI(image, input,model_outputs,encoder,config,intermediate=None):
         v1 = int(v1/2)
         u2 = int(u2/2)
         v2 = int(v2/2)
+
+        ## additional code
+        image = np.copy(image)
+        ## 
 
         image = cv2.rectangle(image, (u1,v1), (u2,v2), (0, 0, 255), 3)
 

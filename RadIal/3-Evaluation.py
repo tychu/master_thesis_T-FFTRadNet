@@ -14,7 +14,7 @@ import torch.nn.functional as F
 from utils.evaluation import run_FullEvaluation
 import torch.nn as nn
 
-
+from dataset.matlab_dataset import MATLAB
 
 def main(config, checkpoint,difficult):
 
@@ -44,11 +44,15 @@ def main(config, checkpoint,difficult):
                         detection_head = config['model']['DetectionHead'],
                         segmentation_head = config['model']['SegmentationHead'])
 
-        dataset = RADIal(root_dir = config['dataset']['root_dir'],
-                            statistics= config['dataset']['statistics'],
-                            encoder=enc.encode,
-                            difficult=True,perform_FFT=config['data_mode'])
+        # dataset = RADIal(root_dir = config['dataset']['root_dir'],
+        #                     statistics= config['dataset']['statistics'],
+        #                     encoder=enc.encode,
+        #                     difficult=True,perform_FFT=config['data_mode'])
 
+        dataset = MATLAB(root_dir = config['dataset']['root_dir'],
+                            statistics= config['dataset']['statistics'],
+                            encoder=enc.encode)
+    
     else:
         net = FFTRadNet_ViT_ADC(patch_size = config['model']['patch_size'],
                         channels = config['model']['channels'],
@@ -78,7 +82,7 @@ def main(config, checkpoint,difficult):
     net.load_state_dict(dict['net_state_dict'])
 
     print('===========  Running the evaluation ==================:')
-    run_FullEvaluation(net,test_loader,enc,config=config)
+    run_FullEvaluation(net,train_loader,enc,config=config) #test_loader
 
 
 
