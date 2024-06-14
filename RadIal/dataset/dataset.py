@@ -17,21 +17,8 @@ class RADIal(Dataset):
         self.root_dir = root_dir
         self.statistics = statistics
         self.encoder = encoder
-        self.perform_FFT = perform_FFT #'Default'
-        
-
+        self.perform_FFT = perform_FFT
         self.labels = pd.read_csv(os.path.join(root_dir,'labels.csv')).to_numpy()
-
-        # Filter out missing IDs from sample keys (IDs do not have corresponding npz file)
-        missing_ids_file = os.path.join(self.root_dir,"labels_missing_ids.npy")
-        missing_ids = np.load(missing_ids_file,allow_pickle=True)
-
-        # Create a boolean mask where True represents rows to keep
-        self.ids_with_twotargets = np.load(os.path.join(root_dir, 'ids_with_two_targets.npy'), allow_pickle=True)
-
-
-
-
         self.numChirps = 256
         self.numSamplePerChirp = 512
         self.numRxAnt = 16
@@ -53,17 +40,11 @@ class RADIal(Dataset):
 
         # Gather each input entries by their sample id
         self.unique_ids = np.unique(self.labels[:,0])
-        #print('self.unique_ids: ', self.unique_ids.shape)
         self.label_dict = {}
         for i,ids in enumerate(self.unique_ids):
-            if ids not in missing_ids and ids in self.ids_with_twotargets: 
-                # Filter out missing IDs from sample keys (IDs do not have corresponding npz file)
-                # keep ids have two targets
-                sample_ids = np.where(self.labels[:,0]==ids)[0]
-                self.label_dict[ids]=sample_ids
+            sample_ids = np.where(self.labels[:,0]==ids)[0]
+            self.label_dict[ids]=sample_ids
         self.sample_keys = list(self.label_dict.keys())
-        #print('self.sample_keys: ', len(self.sample_keys))
-        print('get the id: ', self.sample_keys[0])
 
 
         self.resize = Resize((256,224), interpolation=transform.InterpolationMode.NEAREST)
@@ -97,8 +78,6 @@ class RADIal(Dataset):
         out_label=[]
         if(self.encoder!=None):
             out_label = self.encoder(box_labels).copy()
-            #print('box_labels', box_labels.shape) 1, 10
-            #print('out_label', out_label.shape) 3, 128, 224 [0, :, :]-classification
 
         # Read the Radar data
         if self.perform_FFT == 'Custom_RD':
@@ -132,42 +111,16 @@ class RADIal(Dataset):
 
         else:
             # Default method. Uses precomputed FFT's.
-            #radar_name = os.path.join(self.root_dir,'radar_FFT',"fft_{:06d}.npy".format(sample_id))
-            radar_name = os.path.join(self.root_dir,'radar_FFT',"fft_{:06d}.npz".format(sample_id))
-            #print("fft filename: ", radar_name)
+            radar_name = os.path.join(self.root_dir,'radar_FFT',"fft_{:06d}.npy".format(sample_id))
             input = np.load(radar_name,allow_pickle=True)
-            
-            ## additional code -start
-            ## since original code read-in npy file, but we got npz file instead
-            # npy: Designed to store a single NumPy array
-            # npz: Designed to store multiple NumPy arrays
-
-            # Iterate over each array in the .npz file 
-            for array_name in input.files:
-                # Extract the array
-                array = input[array_name]
-
-    
-                # Save the array as a .npy file
-                # np.save(f'{array_name}.npy', array)
-    
-                radar_FFT = np.concatenate([array.real,array.imag],axis=2)
-                if(self.statistics is not None):
-                    for i in range(len(self.statistics['input_mean'])):
-                        radar_FFT[...,i] -= self.statistics['input_mean'][i]
-                        radar_FFT[...,i] /= self.statistics['input_std'][i] 
-
-            ## additional code - end
-            
-            # radar_FFT = np.concatenate([input.real,input.imag],axis=2)
-            # if(self.statistics is not None):
-            #     for i in range(len(self.statistics['input_mean'])):
-            #         radar_FFT[...,i] -= self.statistics['input_mean'][i]
-            #         radar_FFT[...,i] /= self.statistics['input_std'][i]
+            radar_FFT = np.concatenate([input.real,input.imag],axis=2)
+            if(self.statistics is not None):
+                for i in range(len(self.statistics['input_mean'])):
+                    radar_FFT[...,i] -= self.statistics['input_mean'][i]
+                    radar_FFT[...,i] /= self.statistics['input_std'][i]
 
         # Read the segmentation map
-        #segmap_name = os.path.join(self.root_dir,'radar_Freespace',"freespace_{:06d}.png".format(sample_id))
-        segmap_name = os.path.join(self.root_dir,'radar_Freespace',"freespace.png")
+        segmap_name = os.path.join(self.root_dir,'radar_Freespace',"freespace_{:06d}.png".format(sample_id))
         segmap = Image.open(segmap_name) # [512,900]
         # 512 pix for the range and 900 pix for the horizontal FOV (180deg)
         # We crop the fov to 89.6deg

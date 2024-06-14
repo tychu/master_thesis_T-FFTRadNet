@@ -4,9 +4,6 @@ from .metrics import GetFullMetrics, Metrics
 import pkbar
 import pickle
 
-import matplotlib.pyplot as plt
-import os
-
 def run_evaluation(net,loader,encoder,check_perf=False, detection_loss=None,segmentation_loss=None,losses_params=None,config=None):
 
     metrics = Metrics()
@@ -81,112 +78,49 @@ def run_FullEvaluation(net,loader,encoder,iou_threshold=0.5,config=None):
     print('Generating Predictions...')
     predictions = {'prediction':{'objects':[],'freespace':[]},'label':{'objects':[],'freespace':[]}}
     for i, data in enumerate(loader):
-        # # input, out_label,segmap,labels
-        # if config['data_mode'] == 'ADC':
-        #     inputs = data[0].to('cuda').type(torch.complex64)
+        # input, out_label,segmap,labels
+        if config['data_mode'] == 'ADC':
+            inputs = data[0].to('cuda').type(torch.complex64)
 
-        # else:
-        #     inputs = data[0].to('cuda').float()
-
-        # with torch.set_grad_enabled(False):
-        #     outputs = net(inputs)
-
-        # out_obj = outputs['Detection'].detach().cpu().numpy().copy()
-        # out_seg = torch.sigmoid(outputs['Segmentation']).detach().cpu().numpy().copy()
-
-        # labels_object = data[3]
-        # label_freespace = data[2].numpy().copy()
-
-        # for pred_obj,pred_map,true_obj,true_map in zip(out_obj,out_seg,labels_object,label_freespace):
-
-        #     predictions['prediction']['objects'].append( np.asarray(encoder.decode(pred_obj,0.05)))
-        #     predictions['label']['objects'].append(true_obj)
-
-        #     predictions['prediction']['freespace'].append(pred_map[0])
-        #     predictions['label']['freespace'].append(true_map)
-
-        if i == 50: #len(loader) - 1:
-                    # input, out_label,segmap,labels
+        else:
             inputs = data[0].to('cuda').float()
 
-            with torch.set_grad_enabled(False):
-                outputs = net(inputs)
+        with torch.set_grad_enabled(False):
+            outputs = net(inputs)
 
-            out_obj = outputs['Detection'].detach().cpu().numpy().copy()
-            out_seg = torch.sigmoid(outputs['Segmentation']).detach().cpu().numpy().copy()
-            
-            labels_object = data[3] # box_labels = pd.read_csv(csv_file).to_numpy()  
-                                    # format as following [Range, Angle, Doppler,laser_X_m,laser_Y_m,laser_Z_m,x1_pix,y1_pix,x2_pix	,y2_pix]
-                                    # box_labels = box_labels[:,[10,11,12,5,6,7,1,2,3,4]].astype(np.float32) 
-            label_freespace = data[2].numpy().copy()
-                
-            for pred_obj,pred_map,true_obj,true_map in zip(out_obj,out_seg,labels_object,label_freespace):
-                
-                predictions['prediction']['objects'].append( np.asarray(encoder.decode(pred_obj,0.05)))
-                predictions['label']['objects'].append(true_obj)
+        out_obj = outputs['Detection'].detach().cpu().numpy().copy()
+        out_seg = torch.sigmoid(outputs['Segmentation']).detach().cpu().numpy().copy()
 
-                predictions['prediction']['freespace'].append(pred_map[0])
-                predictions['label']['freespace'].append(true_map)
+        labels_object = data[3]
+        label_freespace = data[2].numpy().copy()
 
-            # debugging        
-            #GetFullMetrics(predictions['prediction']['objects'],predictions['label']['objects'],range_min=0,range_max=350,IOU_threshold=0.5)#range_min=5,range_max=100
+        for pred_obj,pred_map,true_obj,true_map in zip(out_obj,out_seg,labels_object,label_freespace):
 
-            label_map = data[1].to('cuda').float() # debugging
-            matrix_plot(outputs['Detection'], label_map) # debugging
+            predictions['prediction']['objects'].append( np.asarray(encoder.decode(pred_obj,0.05)))
+            predictions['label']['objects'].append(true_obj)
+
+            predictions['prediction']['freespace'].append(pred_map[0])
+            predictions['label']['freespace'].append(true_map)
+
 
         kbar.update(i)
 
-    # iou_list = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
-    # for iou_ in iou_list:
-    #     results.append(GetFullMetrics(predictions['prediction']['objects'],predictions['label']['objects'],range_min=5,range_max=100,IOU_threshold=iou_))
+    iou_list = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
+    for iou_ in iou_list:
+        results.append(GetFullMetrics(predictions['prediction']['objects'],predictions['label']['objects'],range_min=5,range_max=100,IOU_threshold=iou_))
 
-    # mIoU = []
-    # for i in range(len(predictions['prediction']['freespace'])):
-    #     # 0 to 124 means 0 to 50m
-    #     pred = predictions['prediction']['freespace'][i][:124].reshape(-1)>=0.5
-    #     label = predictions['label']['freespace'][i][:124].reshape(-1)
+    mIoU = []
+    for i in range(len(predictions['prediction']['freespace'])):
+        # 0 to 124 means 0 to 50m
+        pred = predictions['prediction']['freespace'][i][:124].reshape(-1)>=0.5
+        label = predictions['label']['freespace'][i][:124].reshape(-1)
 
-    #     intersection = np.abs(pred*label).sum()
-    #     union = np.sum(label) + np.sum(pred) -intersection
-    #     iou = intersection /union
-    #     mIoU.append(iou)
+        intersection = np.abs(pred*label).sum()
+        union = np.sum(label) + np.sum(pred) -intersection
+        iou = intersection /union
+        mIoU.append(iou)
 
 
-    # mIoU = np.asarray(mIoU).mean()
-    # print('------- Freespace Scores ------------')
-    # print('  mIoU',mIoU*100,'%')
-
-def matrix_plot(predictions, labels):
-    directory = './plot/'
-    fig, axs = plt.subplots(1, 2, figsize=(12, 6))
-
-    prediction = predictions[0, 0, :, :].detach().cpu().numpy().copy()
-    #target_prediction = (prediction > 0.5).float()
-    label = labels[0, 0, :, :].detach().cpu().numpy().copy()
-
-    m1 = axs[0].imshow(prediction, cmap='magma', interpolation='none')
-    axs[0].set_title('prediction')
-    axs[0].set_ylim(0, prediction.shape[0])
-    axs[0].set_xlim(0, prediction.shape[1])
-    axs[0].set_xlabel('azimuth')
-    axs[0].set_ylabel('range')
-
-    fig.colorbar(m1, ax=axs[0])
-
-    # Plot the second matrix
-    m2 = axs[1].imshow(label, cmap='magma', interpolation='none', vmin=0.0, vmax=1.0)
-    axs[1].set_title('label')
-    axs[1].set_ylim(0, label.shape[0])
-    axs[1].set_xlim(0, label.shape[1])
-    axs[1].set_xlabel('azimuth')
-    axs[1].set_ylabel('range')
-
-    fig.colorbar(m2, ax=axs[1])
-
-    # Save the plot with an incrementally named file
-    filepath = os.path.join(directory, f'matrix_plot_last.png')
-    plt.savefig(filepath)
-    print(f'Plot saved to {filepath}')
-
-    # Close the plot to free up memory
-    plt.close()     
+    mIoU = np.asarray(mIoU).mean()
+    print('------- Freespace Scores ------------')
+    print('  mIoU',mIoU*100,'%')

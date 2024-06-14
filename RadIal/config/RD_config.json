@@ -14,7 +14,7 @@
         "SegmentationHead": "True"
     },
     "dataset": {
-        "root_dir": "/imec/other/ruoyumsc/users/chu/data/",
+        "root_dir": "C:\\Users\\James-PC\\James\\data\\RADIal",
         "geometry":{
             "ranges": [512,896,1],
             "resolution": [0.201171875,0.2],
@@ -57,7 +57,7 @@
     },
     "num_epochs":150,
     "dataloader": {
-        "mode":"random",
+        "mode":"sequence",
         "split":[0.7,0.15,0.15],
         "train": {
             "batch_size": 4,
