@@ -28,7 +28,7 @@ from optuna.trial import TrialState
 import wandb
 from optuna.integration.wandb import WeightsAndBiasesCallback
 
-
+import time
 
 def train(config, net, train_loader, optimizer, scheduler, history, kbar):
     net.train()
@@ -215,17 +215,21 @@ def objective(trial, config, resume):
         #global_step = cp_dict['global_step']
 
 
-    for epoch in range(num_epochs): # num_epochs
+    for epoch in range(1): # num_epochs
         kbar = pkbar.Kbar(target=len(train_loader), epoch=epoch, num_epochs=num_epochs, width=20, always_stateful=False)
-
+        start_time = time.time()
         loss,predictions, ground_truth  = train(config, net, train_loader, optimizer, scheduler, history, kbar)
-
+        
+        end_time = time.time()
+        epoch_duration = end_time - start_time
+        print(f"Training time for one epoch: {epoch_duration:.2f} seconds")
         
         # tra = run_evaluation(trial, net, train_loader, enc, threshold, check_perf=(epoch >= 1),
         #                       detection_loss=pixor_loss, segmentation_loss=None,
         #                       losses_params=config['losses'])
         
-        eval = run_evaluation(net, val_loader, enc, check_perf=(epoch >= 1),
+        print("run_evaluation")
+        eval = run_evaluation(net, val_loader, enc, check_perf=True,
                               detection_loss=pixor_loss, 
                               losses_params=config['losses'], config=config)
         history['val_loss'].append(eval['loss']/ len(val_loader.dataset))
@@ -299,7 +303,7 @@ if __name__ == '__main__':
 
     # Specific parameter combination for the first trial
     fixed_params = {
-        "lr": 1e-3,
+        "lr": 1e-4,
         "step_size": 10,
         #"batch_size": 4,
         #"embed_dim": 48
@@ -334,7 +338,7 @@ if __name__ == '__main__':
         }
     ))
  
-    study.optimize(lambda trial: objective(trial, config, args.resume), n_trials=args.trials)
+    #study.optimize(lambda trial: objective(trial, config, args.resume), n_trials=args.trials)
 
     pruned_trials = study.get_trials(deepcopy=False, states=[TrialState.PRUNED])
     complete_trials = study.get_trials(deepcopy=False, states=[TrialState.COMPLETE])
