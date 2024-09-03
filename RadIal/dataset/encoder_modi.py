@@ -1,4 +1,5 @@
 import numpy as np
+import sys
         
 class ra_encoder():
     def __init__(self, geometry, statistics,regression_layer = 2):
@@ -31,20 +32,25 @@ class ra_encoder():
             
 
             
+            
             if(self.geometry['size']==1):
                 
                 map[0,range_bin,angle_bin] = 1
                 map[1,range_bin,angle_bin] = (range_mod - self.statistics['reg_mean'][0]) / self.statistics['reg_std'][0]
                 map[2,range_bin,angle_bin] = (angle_mod - self.statistics['reg_mean'][1]) / self.statistics['reg_std'][1]
             else:
+                #print("in self.geometry['size'] != 1")
 
                 s = int((self.geometry['size']-1)/2) #size=3 (3-1)/2=1
+                #print("s: ", s)
                 r_lin = np.linspace(self.geometry['resolution'][0]*s, -self.geometry['resolution'][0]*s,
                                     self.geometry['size'])*4
                 a_lin = np.linspace(self.geometry['resolution'][1]*s, -self.geometry['resolution'][1]*s,
                                     self.geometry['size'])*4
+                #print("r_lin: ", r_lin, "a_lin: ", a_lin)
                 # np.linspace(): generate array evenly spaced number over a specified interval
                 px_a, px_r = np.meshgrid(a_lin, r_lin)
+                #print("px_a: ", px_a, "px_r: ", px_r)
 
                 # # Define the range and angle bin limits
                 # range_start = range_bin - s
@@ -60,8 +66,11 @@ class ra_encoder():
                 range_end = min(range_bin + s + 1, self.OUTPUT_DIM[1])
                 angle_start = max(angle_bin - s, 0)
                 angle_end = min(angle_bin + s + 1, self.OUTPUT_DIM[2])
+                #print("range_start: ", range_start, "range_end: ", range_end)
+                #print("angle_start: ", angle_start, "angle_end: ", angle_end)
 
                 # Handle all cases for angle_bin and range_bin
+                # originally paper only cover the angle exception
                 if angle_bin >= s and angle_bin < (self.OUTPUT_DIM[2] - s) and range_bin >= s and range_bin < (self.OUTPUT_DIM[1] - s):
                     map[0, range_start:range_end, angle_start:angle_end] = 1
                     map[1, range_start:range_end, angle_start:angle_end] = ((px_r + range_mod) - self.statistics['reg_mean'][0]) / self.statistics['reg_std'][0]
@@ -114,6 +123,15 @@ class ra_encoder():
                     map[1, 0:range_slice, angle_start:] = ((px_r_slice + range_mod) - self.statistics['reg_mean'][0]) / self.statistics['reg_std'][0]
                     map[2, 0:range_slice, angle_start:] = ((px_a_slice + angle_mod) - self.statistics['reg_mean'][1]) / self.statistics['reg_std'][1]
 
+                elif angle_bin >= s and range_bin >= (self.OUTPUT_DIM[1] - s):
+                    end_range = s + (self.OUTPUT_DIM[1] - range_bin)
+                    px_r_slice = px_r[:end_range, :]
+                    px_a_slice = px_a[:end_range, :]
+    
+                    map[0, range_start:, angle_start:angle_end] = 1
+                    map[1, range_start:, angle_start:angle_end] = ((px_r_slice + range_mod) - self.statistics['reg_mean'][0]) / self.statistics['reg_std'][0]
+                    map[2, range_start:, angle_start:angle_end] = ((px_a_slice + angle_mod) - self.statistics['reg_mean'][1]) / self.statistics['reg_std'][1]
+
                 elif angle_bin < s and range_bin >= (self.OUTPUT_DIM[1] - s):
                     angle_slice = angle_bin + s + 1
                     end = s + (self.OUTPUT_DIM[1] - range_bin)
@@ -133,7 +151,10 @@ class ra_encoder():
                     map[0, range_start:, angle_start:] = 1
                     map[1, range_start:, angle_start:] = ((px_r_slice + range_mod) - self.statistics['reg_mean'][0]) / self.statistics['reg_std'][0]
                     map[2, range_start:, angle_start:] = ((px_a_slice + angle_mod) - self.statistics['reg_mean'][1]) / self.statistics['reg_std'][1]
-
+                else:
+                    print("none of above fits")
+                    # Stop the script
+                    sys.exit("Stopping the script")  
 
                 # if(angle_bin>=s and angle_bin<(self.OUTPUT_DIM[2]-s)):
 
