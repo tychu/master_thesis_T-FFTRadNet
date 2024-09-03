@@ -10,23 +10,26 @@ import scipy.io as sio
 
 class MATLAB(Dataset):
 
-    def __init__(self, root_dir,folder_dir, statistics=None,encoder=None,difficult=False):
+    def __init__(self, root_dir,folder_dir, statistics=None,encoder=None,difficult=False,perform_FFT='Default'):
 
         self.root_dir = root_dir
         self.folder_dir = folder_dir
         self.statistics = statistics
         self.encoder = encoder
-        
+        self.perform_FFT = perform_FFT #'Default'
+
         #self.labels = pd.read_csv(os.path.join(root_dir,'ground_truth/ground_truth.csv')).to_numpy()
         #csv_file = os.path.join(self.root_dir, 'ground_truth/ground_truth.csv')
         #self.labels = pd.read_csv(csv_file).to_numpy()
         #print('check labels length')
         #print(len(self.labels))
 
-        self.mat_files = [f for f in os.listdir(os.path.join(self.root_dir, self.folder_dir, 'RD_cube/')) if f.endswith('.mat')]
-        
+        #self.mat_files = [f for f in os.listdir(os.path.join(self.root_dir, self.folder_dir, 'RD_cube/')) if f.endswith('.mat')]
+        #print("dataset len mat file: ", len(self.mat_files))
         self.csv_files = [f for f in os.listdir(os.path.join(self.root_dir, self.folder_dir, 'ground_truth/')) if f.endswith('.csv')]
-        self.image_files = [f for f in os.listdir(os.path.join(self.root_dir, 'camera/')) if f.endswith('.jpg')]
+        #print("dataset len csv: ", len(self.csv_files))
+
+        #self.image_files = [f for f in os.listdir(os.path.join(self.root_dir, 'camera/')) if f.endswith('.jpg')]
         
        
         # Keeps only easy samples
@@ -53,8 +56,8 @@ class MATLAB(Dataset):
 
     def __len__(self):
         #return len(self.label_dict)
-        print("dataset len: ", len(self.mat_files))
-        return len(self.mat_files)
+        print("dataset len: ", len(self.csv_files))
+        return len(self.csv_files)
         #return len(self.labels)
 
     #def __getitem__(self, index):
@@ -64,8 +67,8 @@ class MATLAB(Dataset):
         # print("csv file: ", len(self.csv_files))
         # print("mat files: ", len(self.mat_files))
         # print(f"Fetching index: {idx}")
-        if idx >= len(self.csv_files) or idx >= len(self.mat_files):
-            raise IndexError(f"Index {idx} out of range for file lists. csv file: {len(self.csv_files)}, mat file: {len(self.mat_files)}")
+        #if idx >= len(self.csv_files) or idx >= len(self.mat_files):
+        #    raise IndexError(f"Index {idx} out of range for file lists. csv file: {len(self.csv_files)}, mat file: {len(self.mat_files)}")
         
         # Get the sample id
         #sample_id = self.sample_keys[index] 
@@ -85,11 +88,7 @@ class MATLAB(Dataset):
         #box_labels = box_labels[:,[10,11,12,5,6,7,1,2,3,4]].astype(np.float32) 
 
         
-        
-
-        ######################
-        #  Encode the labels #
-        ######################
+    
         idx_adj = idx +1
         # load lables
         csv_file = os.path.join(self.root_dir, self.folder_dir, 'ground_truth/',f"ground_truth_{idx_adj}.csv")
@@ -98,48 +97,44 @@ class MATLAB(Dataset):
         box_labels = pd.read_csv(csv_file).to_numpy()
         #print(box_labels.shape)
 
-        
+
+        ######################
+        #  Encode the labels #
+        ######################        
         out_label=[]
         if(self.encoder!=None):
             out_label = self.encoder(box_labels).copy()
         #out_label = box_labels      
 
-        # Read the Radar FFT data
-        #radar_name = os.path.join(self.root_dir,'radar_FFT',"fft_{:06d}.npy".format(sample_id))
-        mat_file = os.path.join(self.root_dir, self.folder_dir, 'RD_cube/',f"RD_cube_{idx_adj}.mat")
-        #print("mat file indx :", mat_file)
-        #mat_file = os.path.join(self.root_dir, 'RD_cube/', self.mat_files[idx])
-        mat_input_4d = sio.loadmat(mat_file)['radar_data_cube_4d']
-        mat_input_3d = mat_input_4d[:, :, 0, :]
-
-        # #### re-arrange the RD spectrum, one RD specturm per Rx
-        # ## combine the Tx
         
-        # combine_data_list = []
-
-        # for cube_idx in range(mat_input_4d.shape[-1]):
-        #     cube_data = mat_input_4d[:, :, :, cube_idx]
-        #     #print('cube_data shape', cube_data.shape)
-        #     # combined the column of each matrix
-        #     combined_data_cube = np.concatenate([cube_data[:, i, :] for i in range(cube_data.shape[1])], axis=1)
-        #     #rint('combined data cube', combined_data_cube.shape)
-        #     # append the combined data to the list
-        #     combine_data_list.append(combined_data_cube)
-
-        # mat_input_3d = np.stack(combine_data_list, axis=-1)
+        # Read the Radar data
+        if self.perform_FFT == 'ADC':
+            # Utilize Raw ADC
+            radar_name = os.path.join(self.root_dir, self.folder_dir, 'ADC_cube/',f"ADC_cube_{idx_adj}.mat")
+            mat_input_4d = sio.loadmat(radar_name)['radar_data_cube_4d']
+            #print("Shape of raw ADC:", mat_input_4d.shape)
+            radar_FFT = mat_input_4d[:, :, 0, :]
+        else:
+            # Read the Radar FFT data
+            #radar_name = os.path.join(self.root_dir,'radar_FFT',"fft_{:06d}.npy".format(sample_id))
+            mat_file = os.path.join(self.root_dir, self.folder_dir, 'RD_cube/',f"RD_cube_{idx_adj}.mat")
+            #print("mat file indx :", mat_file)
+            #mat_file = os.path.join(self.root_dir, 'RD_cube/', self.mat_files[idx])
+            mat_input_4d = sio.loadmat(mat_file)['radar_data_cube_4d']
+            mat_input_3d = mat_input_4d[:, :, 0, :]
         
-        #print("radar FFT")
-        radar_FFT = np.concatenate([mat_input_3d.real,mat_input_3d.imag],axis=2)
-        #print("Shape of concatenated array:", radar_FFT.shape)
+            #print("radar FFT")
+            radar_FFT = np.concatenate([mat_input_3d.real,mat_input_3d.imag],axis=2)
+            #print("Shape of concatenated array:", radar_FFT.shape)
 
-        if(self.statistics is not None):
-            for i in range(len(self.statistics['input_mean'])):
-                radar_FFT[...,i] -= self.statistics['input_mean'][i]
-                radar_FFT[...,i] /= self.statistics['input_std'][i]
-        #if(sta_mean is not None):
-        #    for i in range(len(sta_mean)):
-        #        radar_FFT[...,i] -= sta_mean[i]
-        #        radar_FFT[...,i] /= sta_std[i]
+            if(self.statistics is not None):
+                for i in range(len(self.statistics['input_mean'])):
+                    radar_FFT[...,i] -= self.statistics['input_mean'][i]
+                    radar_FFT[...,i] /= self.statistics['input_std'][i]
+            #if(sta_mean is not None):
+            #    for i in range(len(sta_mean)):
+            #        radar_FFT[...,i] -= sta_mean[i]
+            #        radar_FFT[...,i] /= sta_std[i]
 
         # # Read the segmentation map 
         # # just read any image to work the model first

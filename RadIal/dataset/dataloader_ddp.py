@@ -20,6 +20,9 @@ def RADIal_collate(batch):
     for radar_FFT,out_label,box_labels in batch:
 
         FFTs.append(torch.tensor(radar_FFT).permute(2,0,1))
+        #print("radar_FFT: ", radar_FFT.shape) # (512, 256, 4)
+        #print("FFTs: ", FFTs.shape)
+        #raise Exception("intention stop dataloder")
         #segmaps.append(torch.tensor(segmap))
         encoded_label.append(torch.tensor(out_label))
         #images.append(torch.tensor(image))
@@ -58,7 +61,7 @@ def CreateDataLoaders(dataset,batch_size,config=None,seed=0):
         # create data_loaders
         train_loader = DataLoader(train_dataset, 
                                 batch_size=config['train']['batch_size'], 
-                                shuffle=False, #True,
+                                shuffle=True,
                                 num_workers=config['train']['num_workers'],
                                 pin_memory=True,
                                 collate_fn=RADIal_collate)

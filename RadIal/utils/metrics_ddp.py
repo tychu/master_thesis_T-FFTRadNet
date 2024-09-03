@@ -9,6 +9,8 @@ from shapely.geometry import Polygon
 from shapely.ops import unary_union
 import time
 
+import matplotlib.pyplot as plt
+
 from torchvision.ops import box_iou
 
 def RA_to_cartesian_box(data):
@@ -28,16 +30,23 @@ def RA_to_cartesian_box(data):
 def perform_nms(valid_class_predictions, valid_box_predictions, nms_threshold):
 
     # sort the detections such that the entry with the maximum confidence score is at the top
+    #print("valid_box_predictions: ", valid_box_predictions.shape)
+    #print("sorted_box_predictions: ", sorted_box_predictions.shape)
     sorted_indices = np.argsort(valid_class_predictions)[::-1]
     sorted_box_predictions = valid_box_predictions[sorted_indices]
     sorted_class_predictions = valid_class_predictions[sorted_indices]
-
+    #print("sorted_box_predictions.shape[0]: ", sorted_box_predictions.shape[0])
     for i in range(sorted_box_predictions.shape[0]):
         # get the IOUs of all boxes with the currently most certain bounding box
         try:
+            start_time = time.time()
+            #print("sorted_box_predictions[i, :]: ", sorted_box_predictions[i, :].shape)
+            #print("sorted_box_predictions[i + 1:, :]: ", sorted_box_predictions[i + 1:, :].shape)
             ious = np.zeros((sorted_box_predictions.shape[0]))
-            #ious[i + 1:] = bbox_iou(sorted_box_predictions[i, :], sorted_box_predictions[i + 1:, :])
-            ious[i + 1:] = bbox_iou_pytorch(sorted_box_predictions[i, :], sorted_box_predictions[i + 1:, :])
+            ious[i + 1:] = bbox_iou(sorted_box_predictions[i, :], sorted_box_predictions[i + 1:, :])
+            end_time = time.time()
+            #print("computation time: ", end_time-start_time)
+            #ious[i + 1:] = bbox_iou_pytorch(sorted_box_predictions[i, :], sorted_box_predictions[i + 1:, :])
         except ValueError:
             break
         except IndexError:
@@ -49,37 +58,9 @@ def perform_nms(valid_class_predictions, valid_box_predictions, nms_threshold):
         sorted_class_predictions = sorted_class_predictions[overlap_mask]
 
     return sorted_class_predictions, sorted_box_predictions
-def convert_corners_to_xyxy(boxes):
-    """
-    Convert bounding boxes from corner points to [x1, y1, x2, y2] format.
-    
-    Args:
-        boxes (numpy.ndarray): Array of shape (N, 4, 2) representing N bounding boxes.
-                               Each bounding box is represented by 4 corner points (4x2).
-    
-    Returns:
-        torch.Tensor: Array of shape (N, 4) representing N bounding boxes in [x1, y1, x2, y2] format.
-    """
-    boxes = boxes.reshape(boxes.shape[0], 4, 2)
-    x_coords = boxes[:, :, 0]
-    y_coords = boxes[:, :, 1]
-    x1 = np.min(x_coords, axis=1)
-    y1 = np.min(y_coords, axis=1)
-    x2 = np.max(x_coords, axis=1)
-    y2 = np.max(y_coords, axis=1)
-    
-    xyxy_boxes = np.stack((x1, y1, x2, y2), axis=1)
-    return torch.tensor(xyxy_boxes, dtype=torch.float32)
 
 
-def bbox_iou_pytorch(box1, boxes):
-    # Convert to [x1, y1, x2, y2]
-    box1_xyxy = convert_corners_to_xyxy(box1[np.newaxis, :])
-    boxes_xyxy = convert_corners_to_xyxy(boxes)
 
-    # Calculate IoU using PyTorch
-    iou = box_iou(box1_xyxy, boxes_xyxy)
-    return iou.numpy()
 
 def bbox_iou(box1, boxes):
 
@@ -105,7 +86,10 @@ def bbox_iou(box1, boxes):
         iou = inter_area / (area_1 + area_2 - inter_area)
 
         ious[box_id] = iou
+        #print("area_1: ", area_1, "area_2: ", area_2)
         # Record the end time and calculate the computation time for this iteration.
+        # if inter_area > 0:
+        #     print("area_1: ", area_1, "area_2: ", area_2, "inter_area: ", inter_area)
 
     return ious
 
@@ -115,17 +99,37 @@ def process_predictions_FFT(batch_predictions, confidence_threshold=0.1, nms_thr
     final_batch_predictions = None  # store final bounding box predictions
     
     point_cloud_reg_predictions = RA_to_cartesian_box(batch_predictions)
+    #print("finish RA_to_cartesian_box")
+    #print("batch_predictions: ", batch_predictions.shape)
     point_cloud_reg_predictions = np.asarray(point_cloud_reg_predictions)
     point_cloud_class_predictions = batch_predictions[:,-1]
 
+# #############################
+#     prediction = point_cloud_class_predictions
+#     plt.figure(figsize=(8, 6))
+#     plt.hist(prediction.ravel(), bins=50, color='purple')
+#     plt.title(f'Histogram of Prediction Values ')
+#     plt.xlabel('Prediction Value')
+#     plt.ylabel('Frequency')
+#     plt.ylim(0, 1000)
+#     filepath = os.path.join("/imec/other/dl4ms/chu06/public/", 'histogram.png')
+#     plt.savefig(filepath)
+#     print(f'Plot saved to {filepath}')
+#     plt.close()
+# #########################
+
     # get valid detections
     validity_mask = np.where(point_cloud_class_predictions > confidence_threshold, True, False)
+    #print("confidence_threshold: ", confidence_threshold)
     
     valid_box_predictions = point_cloud_reg_predictions[validity_mask]
     valid_class_predictions = point_cloud_class_predictions[validity_mask]
+    #print("point_cloud_reg_predictions: ", point_cloud_reg_predictions.shape)
+    #print("valid_box_predictions: ", valid_box_predictions.shape)
 
     
     # perform Non-Maximum Suppression
+    #print("perform_nms")
     final_class_predictions, final_box_predictions = perform_nms(valid_class_predictions, valid_box_predictions,
                                                                  nms_threshold)
 
@@ -148,7 +152,6 @@ def GetFullMetrics(predictions,object_labels,range_min=5,range_max=100,IOU_thres
     out = []
 
     for threshold in np.arange(0.1,0.96,0.1):
-    
 
         iou_threshold.append(threshold)
 
@@ -162,18 +165,17 @@ def GetFullMetrics(predictions,object_labels,range_min=5,range_max=100,IOU_thres
         angle_error=0
         nbObjects = 0
 
-
-
-        for frame_id in range(len(predictions)): # len(predictions)=4
-            #print("frame_id : ", frame_id)
+        for frame_id in range(len(predictions)):
+            #if frame_id % 100 == 0:
+            #    print(frame_id)
 
             pred= predictions[frame_id]
             labels = object_labels[frame_id]
 
             # get final bounding box predictions
             Object_predictions = []
-            ground_truth_box_corners = []           
-            
+            ground_truth_box_corners = []
+
             if(len(pred)>0):
                 Object_predictions = process_predictions_FFT(pred,confidence_threshold=threshold)
 
@@ -200,7 +202,7 @@ def GetFullMetrics(predictions,object_labels,range_min=5,range_max=100,IOU_thres
                     iou = bbox_iou(prediction[1:], ground_truth_box_corners)
                     ids = np.where(iou>=IOU_threshold)[0]
 
-                    
+
                     if(len(ids)>0):
                         TP += 1
                         used_gt[ids]=1
@@ -218,8 +220,8 @@ def GetFullMetrics(predictions,object_labels,range_min=5,range_max=100,IOU_thres
                 FP += len(Object_predictions)
             elif(len(Object_predictions)==0):
                 FN += len(ground_truth_box_corners)
-                
-            #print('TP: ', TP, 'FP: ', FP, "FN: ", FN)
+
+
 
         if(TP!=0):
             precision.append( TP / (TP+FP)) # When there is a detection, how much I m sure
@@ -228,13 +230,38 @@ def GetFullMetrics(predictions,object_labels,range_min=5,range_max=100,IOU_thres
             precision.append( 0) # When there is a detection, how much I m sure
             recall.append(0)
 
-        #RangeError.append(range_error/nbObjects)
-        #AngleError.append(angle_error/nbObjects)
+        RangeError.append(range_error/nbObjects)
+        AngleError.append(angle_error/nbObjects)
 
     perfs['precision']=precision
     perfs['recall']=recall
 
     F1_score = (np.mean(precision)*np.mean(recall))/((np.mean(precision) + np.mean(recall))/2)
+
+
+    output_file = os.path.join('TFFTRadNet_detection_score.txt')
+    print("Saving scores to:", output_file)
+    with open(output_file, 'a') as f:
+        f.write('------- Detection Scores - IOU Threshold {0} ------------\n'.format(IOU_threshold))
+        f.write('  mAP: {0}\n'.format(np.mean(perfs['precision'])))
+        f.write('  mAR: {0}\n'.format(np.mean(perfs['recall'])))
+        f.write('  F1 score: {0}\n'.format(F1_score))
+        f.write('------- Regression Errors------------\n')
+        f.write('  Range Error:: {0}\n'.format(np.mean(RangeError)))
+        f.write('  Angle Error: {0}\n'.format(np.mean(AngleError)))      
+
+    # print('------- Detection Scores - IOU Threshold {0} ------------'.format(IOU_threshold))
+    # print('  mAP:',np.mean(perfs['precision']))
+    # print('  mAR:',np.mean(perfs['recall']))
+    # print('  F1 score:',F1_score)
+
+    # print('------- Regression Errors------------')
+    # print('  Range Error:',np.mean(RangeError),'m')
+    # print('  Angle Error:',np.mean(AngleError),'degree')
+    # #print('  Range Error: N/A')
+    # #print('  Angle Error: N/A')
+    return [IOU_threshold,np.mean(perfs['precision']),np.mean(perfs['recall']),F1_score,np.mean(RangeError),np.mean(AngleError)]
+
 
 
 
@@ -252,7 +279,10 @@ def GetDetMetrics(predictions,object_labels,threshold=0.2,range_min=5,range_max=
     labels=[]       
 
     if(len(predictions)>0):
+        #print("process_predictions_FFT")
         Object_predictions = process_predictions_FFT(predictions,confidence_threshold=threshold)
+
+        #raise Exception("error")
 
     if(len(Object_predictions)>0):
         max_distance_predictions = (Object_predictions[:,2]+Object_predictions[:,4])/2
@@ -265,6 +295,7 @@ def GetDetMetrics(predictions,object_labels,threshold=0.2,range_min=5,range_max=
         ids = np.where((object_labels[:,0]>=range_min) & (object_labels[:,0] <= range_max))
         labels = object_labels[ids]
     if(len(labels)>0):
+        #print("RA_to_cartesian_box")
         ground_truth_box_corners = np.asarray(RA_to_cartesian_box(labels))
         NbGT = len(ground_truth_box_corners)
 
@@ -272,10 +303,12 @@ def GetDetMetrics(predictions,object_labels,threshold=0.2,range_min=5,range_max=
     if NbDet>0 and NbGT>0:
 
         used_gt = np.zeros(len(ground_truth_box_corners))
-
+        
+        #start_time = time.time()
+        #print("GetDetMetrics: ", start_time)
         for pid, prediction in enumerate(Object_predictions):
-            #iou = bbox_iou(prediction[1:], ground_truth_box_corners)
-            iou = bbox_iou_pytorch(prediction[1:], ground_truth_box_corners)
+            iou = bbox_iou(prediction[1:], ground_truth_box_corners)
+            #iou = bbox_iou_pytorch(prediction[1:], ground_truth_box_corners)
             ids = np.where(iou>=IOU_threshold)[0]
 
             if(len(ids)>0):
@@ -284,12 +317,16 @@ def GetDetMetrics(predictions,object_labels,threshold=0.2,range_min=5,range_max=
             else:
                 FP+=1
         FN += np.sum(used_gt==0)
+        #end_time = time.time()
+        #computation_time = end_time - start_time
+        #print(f"Computation time = {computation_time:.4f} seconds")
 
     elif(NbGT==0):
         FP += NbDet
     elif(NbDet==0):
         FN += NbGT
         
+    #print("TP: ", TP, "FP: ", FP, "FN: ", FN)
     return TP,FP,FN
 
 
@@ -317,7 +354,7 @@ class Metrics():
         self.mIoU =0
 
     def update(self,PredMap,label_map,ObjectPred,Objectlabels,threshold=0.2,range_min=5,range_max=70):
-
+        #print("cpu")
 
         #TP,FP,FN = GetDetMetrics(ObjectPred,Objectlabels,threshold=0.2,range_min=range_min,range_max=range_max)
         TP,FP,FN = GetDetMetrics(ObjectPred,Objectlabels,threshold,range_min=range_min,range_max=range_max)

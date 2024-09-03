@@ -283,8 +283,8 @@ class FFTRadNet_ViT_ADC(nn.Module):
         if(self.detection_head):
             self.detection_header = Detection_Header(input_angle_size=channels[3]*4,reg_layer=regression_layer)
 
-        if(self.segmentation_head):
-            self.freespace = nn.Sequential(BasicBlock(256,128),BasicBlock(128,64),nn.Conv2d(64, 1, kernel_size=1))
+        #if(self.segmentation_head):
+        #    self.freespace = nn.Sequential(BasicBlock(256,128),BasicBlock(128,64),nn.Conv2d(64, 1, kernel_size=1))
 
     def forward(self,x):
 

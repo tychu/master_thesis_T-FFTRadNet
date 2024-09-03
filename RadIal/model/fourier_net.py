@@ -80,13 +80,14 @@ class FFT_Net(nn.Module):
         self.range_net = Range_Fourier_Net()
         self.doppler_net = NoShift_Doppler_Fourier_Net()
         self.cplx_transpose = CplxToCplx[torch.transpose]
-        self.norm = nn.InstanceNorm2d(32)
+        #self.norm = nn.InstanceNorm2d(32)
+        self.norm = nn.InstanceNorm2d(8)
         #self.activation = ComplexAct(act=nn.LeakyReLU(),use_phase=True)
 
     def forward(self,x):
-        x = x.permute(0,1,3,2)
+        x = x.permute(0,1,3,2) # x: (1, 4, 512, 256) permute-> (1, 4, 256, 512)
         x = self.range_net(x)
-        x = self.cplx_transpose(2,3)(x)
+        x = self.cplx_transpose(2,3)(x) # (1, 4, 256, 512) transpose-> (1, 4, 512, 256)
         x = self.doppler_net(x)
         x = torch.concat([x.real,x.imag],axis=1)
         out = self.norm(x)
