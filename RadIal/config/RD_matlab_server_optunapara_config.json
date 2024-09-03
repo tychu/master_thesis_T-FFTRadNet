@@ -2,7 +2,7 @@
     "name": "SwinTransformer_RD",
     "seed":3,
     "data_mode":"Default",
-    "optuna_project": "TFFTRadNet-optuna-10000",
+    "optuna_project": "TFFTRadNet-optuna-10000-parallel",
     "model": {
         "depths": [2,2,6,2],
         "channels": [32,40,48,56],
@@ -64,6 +64,6 @@
         }
     },
     "output": {
-	"dir": "/imec/other/dl4ms/chu06/public/model_checkpoint/TFFTRadNet/TFFTRadNet-optuna-10000/"
+	"dir": "/imec/other/dl4ms/chu06/public/model_checkpoint/TFFTRadNet/optunaparallel/"
     }
 }

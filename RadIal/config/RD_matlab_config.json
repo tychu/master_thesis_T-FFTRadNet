@@ -11,10 +11,10 @@
         "drop_rates": [0.0,0.0,0.0],
         "num_heads": [3,6,12,24],
         "DetectionHead": "True",
-        "SegmentationHead": "True"
+        "SegmentationHead": "False"
     },
     "dataset": {
-        "root_dir": "/imec/other/dl4ms/chu06/data/",
+        "root_dir": "/imec/other/dl4ms/chu06/public/data/simulation_data_DDA_3targets/",
         "geometry":{
             "ranges": [512,896,1],
             "resolution": [0.673828125,0.2],
@@ -58,7 +58,7 @@
     "optimizer": {
         "lr": 1e-4
     },
-    "num_epochs":150,
+    "num_epochs":500,
     "dataloader": {
         "mode":"random",
         "split":[0.7,0.15,0.15],
