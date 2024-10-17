@@ -2,7 +2,7 @@
     "name": "SwinTransformer_RD",
     "seed":3,
     "data_mode":"ADC",
-    "optuna_project": "TFFTRadNet-ADC-velocity",
+    "optuna_project": "TFFTRadNet-ADC-RARD",
     "model": {
         "depths": [2,2,6,2],
         "channels": [32,40,48,56],
@@ -33,7 +33,7 @@
         "fct":"PixorLoss",
         "classification": "FocalLoss",
         "regression": "smoothL1Loss",
-        "weight": [2,100,100]
+        "weight": [2,100,100000]
     },
     "lr_scheduler": {
         "step_size": 10,
@@ -64,6 +64,6 @@
         }
     },
     "output": {
-	"dir": "/imec/other/dl4ms/chu06/public/model_checkpoint/TFFTRadNet/TFFTRadNet_ADC_vel/"
+	"dir": "/imec/other/dl4ms/chu06/public/model_checkpoint/TFFTRadNet/TFFTRadNet_ADC_RARD/"
     }
 }
