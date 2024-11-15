@@ -44,7 +44,6 @@ for i in range(len(dataset)):
 
     m += data.mean(axis=0)
     s += data.std(axis=0)
-
     idy,idx = np.where(out_label[0]>0)
 
     reg.append(out_label[1:,idy,idx])

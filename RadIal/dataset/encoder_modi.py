@@ -29,7 +29,7 @@ class ra_encoder():
             angle_bin = int(np.clip(np.floor(lab[1]/self.geometry['resolution'][1]/4 + self.OUTPUT_DIM[2]/2),0,self.OUTPUT_DIM[2]-1))
             angle_mod = lab[1] - (angle_bin- self.OUTPUT_DIM[2]/2)*self.geometry['resolution'][1]*4 
 
-            
+            # doppler
 
             
             
@@ -184,6 +184,8 @@ class ra_encoder():
             R = range_bin*4*self.geometry['resolution'][0] + map[1,range_bin,angle_bin] * self.statistics['reg_std'][0] + self.statistics['reg_mean'][0]
             A = (angle_bin-self.OUTPUT_DIM[2]/2)*4*self.geometry['resolution'][1] + map[2,range_bin,angle_bin] * self.statistics['reg_std'][1] + self.statistics['reg_mean'][1]
             C = map[0,range_bin,angle_bin]
+            #  map[1,range_bin,angle_bin]: Model prediction on range, reg head
+            #  map[2,range_bin,angle_bin]: Model prediction on angle, reg head
         
             coordinates.append([R,A,C])
        

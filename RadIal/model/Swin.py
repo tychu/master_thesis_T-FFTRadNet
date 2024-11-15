@@ -501,10 +501,10 @@ class SwinTransformer(nn.Module):
         self.pretrain_img_size = pretrain_img_size
         self.num_layers = len(depths)
         self.embed_dim = embed_dim
-        self.ape = ape
+        self.ape = ape # current setting = false
         self.patch_norm = patch_norm
         self.out_indices = out_indices
-        self.frozen_stages = frozen_stages
+        self.frozen_stages = frozen_stages # curretn setting =-1, means not freezing any parameters
 
         # split image into non-overlapping patches
         self.patch_embed = PatchEmbed(

@@ -1,0 +1,208 @@
+------- Train ------------
+------- Detection Scores - IOU Threshold 0.1 ------------
+  mAP: 0.9868463633399891
+  mAR: 0.9997137404580153
+  F1 score: 0.9932383795142652
+------- Regression Errors------------
+  Range Error:: 0.06322441680784668
+  Angle Error: 0.045882049660967594
+------- Detection Scores - IOU Threshold 0.2 ------------
+  mAP: 0.9868463633399891
+  mAR: 0.9991417127598703
+  F1 score: 0.9929559774947894
+------- Regression Errors------------
+  Range Error:: 0.06267870512933708
+  Angle Error: 0.04516895492975496
+------- Detection Scores - IOU Threshold 0.3 ------------
+  mAP: 0.9868463633399891
+  mAR: 0.9988083321416654
+  F1 score: 0.992791317131392
+------- Regression Errors------------
+  Range Error:: 0.062489186132961186
+  Angle Error: 0.04468588991677339
+------- Detection Scores - IOU Threshold 0.4 ------------
+  mAP: 0.9867992674936905
+  mAR: 0.9985702711719012
+  F1 score: 0.9926498749403682
+------- Regression Errors------------
+  Range Error:: 0.06231501235922042
+  Angle Error: 0.04461059173492596
+------- Detection Scores - IOU Threshold 0.5 ------------
+  mAP: 0.9865637882621977
+  mAR: 0.9982368358351204
+  F1 score: 0.9923659861728039
+------- Regression Errors------------
+  Range Error:: 0.062143838533799935
+  Angle Error: 0.0445326575875535
+------- Detection Scores - IOU Threshold 0.6 ------------
+  mAP: 0.985150912873241
+  mAR: 0.9965961732379365
+  F1 score: 0.9908404929288258
+------- Regression Errors------------
+  Range Error:: 0.06156746149393488
+  Angle Error: 0.04417868268329447
+------- Detection Scores - IOU Threshold 0.7 ------------
+  mAP: 0.9757317436135293
+  mAR: 0.9868063824720171
+  F1 score: 0.9812378158470588
+------- Regression Errors------------
+  Range Error:: 0.05907960053203998
+  Angle Error: 0.043168417725444025
+------- Detection Scores - IOU Threshold 0.8 ------------
+  mAP: 0.9248794999113369
+  mAR: 0.9352425098686648
+  F1 score: 0.9300321379729891
+------- Regression Errors------------
+  Range Error:: 0.05106129724701311
+  Angle Error: 0.04024497961131593
+------- Detection Scores - IOU Threshold 0.9 ------------
+  mAP: 0.6902265618073272
+  mAR: 0.6979606523372596
+  F1 score: 0.6940720623715082
+------- Regression Errors------------
+  Range Error:: 0.03167863002330408
+  Angle Error: 0.03338016458866571
+------- Validation ------------
+------- Detection Scores - IOU Threshold 0.1 ------------
+  mAP: 0.7133101428436122
+  mAR: 0.5301112680082851
+  F1 score: 0.6082149478943424
+------- Regression Errors------------
+  Range Error:: 0.2155992440609668
+  Angle Error: 0.14352224947111625
+------- Detection Scores - IOU Threshold 0.2 ------------
+  mAP: 0.7019799975691382
+  mAR: 0.5211081748785128
+  F1 score: 0.5981703095083004
+------- Regression Errors------------
+  Range Error:: 0.1988049670420394
+  Angle Error: 0.13038342145962145
+------- Detection Scores - IOU Threshold 0.3 ------------
+  mAP: 0.6884523598940091
+  mAR: 0.5099685437746723
+  F1 score: 0.5859194317432358
+------- Regression Errors------------
+  Range Error:: 0.18175477874897977
+  Angle Error: 0.12185260706122564
+------- Detection Scores - IOU Threshold 0.4 ------------
+  mAP: 0.6639952265761468
+  mAR: 0.49086013536880585
+  F1 score: 0.5644495363514519
+------- Regression Errors------------
+  Range Error:: 0.1605270192374077
+  Angle Error: 0.10767768117385354
+------- Detection Scores - IOU Threshold 0.5 ------------
+  mAP: 0.6338109614752792
+  mAR: 0.46785705465412064
+  F1 score: 0.5383344624729313
+------- Regression Errors------------
+  Range Error:: 0.14003425291418575
+  Angle Error: 0.09734517865820952
+------- Detection Scores - IOU Threshold 0.6 ------------
+  mAP: 0.5941679628742137
+  mAR: 0.4379738707367069
+  F1 score: 0.5042524856440621
+------- Regression Errors------------
+  Range Error:: 0.12009628281559055
+  Angle Error: 0.08763600059338059
+------- Detection Scores - IOU Threshold 0.7 ------------
+  mAP: 0.5257450293123811
+  mAR: 0.38686419753086415
+  F1 score: 0.4457371740023195
+------- Regression Errors------------
+  Range Error:: 0.09524983909364665
+  Angle Error: 0.07551262197544852
+------- Detection Scores - IOU Threshold 0.8 ------------
+  mAP: 0.4239254205948071
+  mAR: 0.31148148148148147
+  F1 score: 0.3591070947844674
+------- Regression Errors------------
+  Range Error:: 0.06900711127532778
+  Angle Error: 0.06421583433391713
+------- Detection Scores - IOU Threshold 0.9 ------------
+  mAP: 0.22179495770637098
+  mAR: 0.1628395061728395
+  F1 score: 0.18779898722686142
+------- Regression Errors------------
+  Range Error:: 0.03564325148365339
+  Angle Error: 0.04456524621107493
+------- Test ------------
+------- Detection Scores - IOU Threshold 0.1 ------------
+  mAP: 0.6828966127116086
+  mAR: 0.5184422412105398
+  F1 score: 0.5894131356085079
+------- Regression Errors------------
+  Range Error:: 0.20879498526560142
+  Angle Error: 0.1478713587419385
+------- Detection Scores - IOU Threshold 0.2 ------------
+  mAP: 0.6722853292817688
+  mAR: 0.5096554552049437
+  F1 score: 0.579781813132885
+------- Regression Errors------------
+  Range Error:: 0.19252223522082443
+  Angle Error: 0.13384880849241645
+------- Detection Scores - IOU Threshold 0.3 ------------
+  mAP: 0.6568269119415129
+  mAR: 0.4972465497625806
+  F1 score: 0.5660036845000596
+------- Regression Errors------------
+  Range Error:: 0.1747103394035015
+  Angle Error: 0.12192034590809007
+------- Detection Scores - IOU Threshold 0.4 ------------
+  mAP: 0.6371636385122467
+  mAR: 0.48142384269551897
+  F1 score: 0.5484519940223604
+------- Regression Errors------------
+  Range Error:: 0.15737834886906688
+  Angle Error: 0.11021605615370292
+------- Detection Scores - IOU Threshold 0.5 ------------
+  mAP: 0.6136004600651694
+  mAR: 0.46282298305419695
+  F1 score: 0.5276518216805455
+------- Regression Errors------------
+  Range Error:: 0.14054293120059905
+  Angle Error: 0.1017815813012061
+------- Detection Scores - IOU Threshold 0.6 ------------
+  mAP: 0.5746582339759849
+  mAR: 0.4326146551085426
+  F1 score: 0.4936210959132498
+------- Regression Errors------------
+  Range Error:: 0.12011753592792747
+  Angle Error: 0.09185896698920401
+------- Detection Scores - IOU Threshold 0.7 ------------
+  mAP: 0.5099392108529238
+  mAR: 0.38325925925925924
+  F1 score: 0.4376158955896918
+------- Regression Errors------------
+  Range Error:: 0.09590570325564197
+  Angle Error: 0.07817386986676161
+------- Detection Scores - IOU Threshold 0.8 ------------
+  mAP: 0.40221092327082464
+  mAR: 0.3017283950617284
+  F1 score: 0.34479806197576274
+------- Regression Errors------------
+  Range Error:: 0.06810618582707519
+  Angle Error: 0.06537704479035172
+------- Detection Scores - IOU Threshold 0.9 ------------
+  mAP: 0.21004105735000933
+  mAR: 0.1573086419753086
+  F1 score: 0.17989002605131932
+------- Regression Errors------------
+  Range Error:: 0.0351249538535737
+  Angle Error: 0.05018065273811986
+------- Summary ------------
+------- Train ------------
+Means of Precision, Recall, F1_score, RangeError, AngleError:
+[0.9455434293312545, 0.9567862900313835, 0.9511315604860001, 0.05735979425105082, 0.04287248760429951]
+confusion matrix of IoU of RA map, precision, recall, f1: 
+(0.9884614776684809, 0.9886333695182488, 0.9998241331897976, 0.9941972613193149)
+------- Validation ------------
+Means of Precision, Recall, F1_score, RangeError, AngleError:
+confusion matrix of IoU of RA map, precision, recall, f1: 
+(0.3650783891792192, 0.6749005493464671, 0.4429800566966728, 0.5348826735125884)
+[0.5741313398717732, 0.42434047028958766, 0.4879982699586636, 0.13519074963019972, 0.0969678712153164]
+------- Test ------------
+Means of Precision, Recall, F1_score, RangeError, AngleError:
+[0.5510691531068943, 0.41605578037029095, 0.4741363920527092, 0.13257813542486796, 0.10013652055353235]
+confusion matrix of IoU of RA map, precision, recall, f1: 
+(0.35155534758814316, 0.6576343431268077, 0.43031102921034936, 0.5202233829572652)

@@ -1,0 +1,241 @@
+------- Train ------------
+------- Detection Scores - IOU Threshold 0.1 ------------
+  mAP: 0.7911011022476013
+  mAR: 0.6687111875055065
+  F1 score: 0.7247755909910573
+------- Regression Errors------------
+  Range Error:: 0.18781981092614036
+  Angle Error: 0.15281842993701258
+  Doppler Error: 0.6129688308734713
+------- Detection Scores - IOU Threshold 0.2 ------------
+  mAP: 0.7809873277647098
+  mAR: 0.6686585460345049
+  F1 score: 0.7204709239587078
+------- Regression Errors------------
+  Range Error:: 0.17220529130518525
+  Angle Error: 0.1385786374781553
+  Doppler Error: 0.6128959820584772
+------- Detection Scores - IOU Threshold 0.3 ------------
+  mAP: 0.7694824361175512
+  mAR: 0.6685965266446596
+  F1 score: 0.7155007442902633
+------- Regression Errors------------
+  Range Error:: 0.15814813741492975
+  Angle Error: 0.12764818397829036
+  Doppler Error: 0.6128448964939868
+------- Detection Scores - IOU Threshold 0.4 ------------
+  mAP: 0.7554222037145957
+  mAR: 0.668474742049451
+  F1 score: 0.7092938351596441
+------- Regression Errors------------
+  Range Error:: 0.14475724830512976
+  Angle Error: 0.1185164115641111
+  Doppler Error: 0.6126867573152945
+------- Detection Scores - IOU Threshold 0.5 ------------
+  mAP: 0.7358677929245767
+  mAR: 0.6681883328549247
+  F1 score: 0.7003968925856517
+------- Regression Errors------------
+  Range Error:: 0.13096662919077964
+  Angle Error: 0.109561242880902
+  Doppler Error: 0.6121220579048681
+------- Detection Scores - IOU Threshold 0.6 ------------
+  mAP: 0.7056247864375326
+  mAR: 0.6671510713049389
+  F1 score: 0.6858487925119547
+------- Regression Errors------------
+  Range Error:: 0.11558793273388282
+  Angle Error: 0.10062371608212908
+  Doppler Error: 0.6105841102568629
+------- Detection Scores - IOU Threshold 0.7 ------------
+  mAP: 0.6471320551548382
+  mAR: 0.6635837905849171
+  F1 score: 0.6552546740995431
+------- Regression Errors------------
+  Range Error:: 0.09602103532566883
+  Angle Error: 0.08982184353876349
+  Doppler Error: 0.6019054851318993
+------- Detection Scores - IOU Threshold 0.8 ------------
+  mAP: 0.5210798192769945
+  mAR: 0.6501890907045487
+  F1 score: 0.5785185809901475
+------- Regression Errors------------
+  Range Error:: 0.06943915529498218
+  Angle Error: 0.07591049454367917
+  Doppler Error: 0.5932481957858415
+------- Detection Scores - IOU Threshold 0.9 ------------
+  mAP: 0.2525067796042167
+  mAR: 0.5772211127564473
+  F1 score: 0.35132540594004225
+------- Regression Errors------------
+  Range Error:: 0.03376421418187346
+  Angle Error: 0.052030813313642496
+  Doppler Error: 0.5675819012740126
+------- Validation ------------
+------- Detection Scores - IOU Threshold 0.1 ------------
+  mAP: 0.7357678223672881
+  mAR: 0.5363063294532417
+  F1 score: 0.6203992740185427
+------- Regression Errors------------
+  Range Error:: 0.30926565210322077
+  Angle Error: 0.2174346267290468
+  Doppler Error: 0.6504720237019226
+------- Detection Scores - IOU Threshold 0.2 ------------
+  mAP: 0.7181188569451566
+  mAR: 0.5333759974601673
+  F1 score: 0.612111764215095
+------- Regression Errors------------
+  Range Error:: 0.2803744050570012
+  Angle Error: 0.2033959347698266
+  Doppler Error: 0.63752794075209
+------- Detection Scores - IOU Threshold 0.3 ------------
+  mAP: 0.6967432516109026
+  mAR: 0.5293834988074985
+  F1 score: 0.6016415190067897
+------- Regression Errors------------
+  Range Error:: 0.2533890822306201
+  Angle Error: 0.19066696166897973
+  Doppler Error: 0.6249303200575511
+------- Detection Scores - IOU Threshold 0.4 ------------
+  mAP: 0.6656812543621056
+  mAR: 0.5229305252156239
+  F1 score: 0.585733801314741
+------- Regression Errors------------
+  Range Error:: 0.2244003263467184
+  Angle Error: 0.17706019549276508
+  Doppler Error: 0.613619361010934
+------- Detection Scores - IOU Threshold 0.5 ------------
+  mAP: 0.6227147999619675
+  mAR: 0.5127813695079294
+  F1 score: 0.562426464347169
+------- Regression Errors------------
+  Range Error:: 0.19411937250736244
+  Angle Error: 0.16398856181268928
+  Doppler Error: 0.6043790619092247
+------- Detection Scores - IOU Threshold 0.6 ------------
+  mAP: 0.5487877297200192
+  mAR: 0.4947835949015643
+  F1 score: 0.5203883229489866
+------- Regression Errors------------
+  Range Error:: 0.15661534534494878
+  Angle Error: 0.14987343355453714
+  Doppler Error: 0.5873613545180398
+------- Detection Scores - IOU Threshold 0.7 ------------
+  mAP: 0.43927178888233354
+  mAR: 0.459350181891514
+  F1 score: 0.44908667423109705
+------- Regression Errors------------
+  Range Error:: 0.11733094126876026
+  Angle Error: 0.1300908015176982
+  Doppler Error: 0.5738378847132601
+------- Detection Scores - IOU Threshold 0.8 ------------
+  mAP: 0.2787071391987005
+  mAR: 0.381379359754388
+  F1 score: 0.32205824683631834
+------- Regression Errors------------
+  Range Error:: 0.07486976099431997
+  Angle Error: 0.10109582848258117
+  Doppler Error: 0.5559248918447103
+------- Detection Scores - IOU Threshold 0.9 ------------
+  mAP: 0.10160658199389301
+  mAR: 0.19570688025968103
+  F1 score: 0.13376526595970004
+------- Regression Errors------------
+  Range Error:: 0.03612423132951673
+  Angle Error: 0.062379341125496424
+  Doppler Error: 0.519654546991446
+------- Test ------------
+------- Detection Scores - IOU Threshold 0.1 ------------
+  mAP: 0.7380580041936314
+  mAR: 0.5453146542523045
+  F1 score: 0.6272127471725327
+------- Regression Errors------------
+  Range Error:: 0.3159509135776181
+  Angle Error: 0.2501851553328822
+  Doppler Error: 0.6889109411574097
+------- Detection Scores - IOU Threshold 0.2 ------------
+  mAP: 0.7191820393452518
+  mAR: 0.5422869036713407
+  F1 score: 0.6183315149399553
+------- Regression Errors------------
+  Range Error:: 0.28701004847757117
+  Angle Error: 0.2313319624640453
+  Doppler Error: 0.6806658410300865
+------- Detection Scores - IOU Threshold 0.3 ------------
+  mAP: 0.6918558957964922
+  mAR: 0.5378520538783024
+  F1 score: 0.6052105536771799
+------- Regression Errors------------
+  Range Error:: 0.2548920426865967
+  Angle Error: 0.21392311229443614
+  Doppler Error: 0.6712472140999846
+------- Detection Scores - IOU Threshold 0.4 ------------
+  mAP: 0.659111574908996
+  mAR: 0.5310600922686679
+  F1 score: 0.588197254966695
+------- Regression Errors------------
+  Range Error:: 0.22622641806599367
+  Angle Error: 0.1898384679445186
+  Doppler Error: 0.6473494424674919
+------- Detection Scores - IOU Threshold 0.5 ------------
+  mAP: 0.6142663157238327
+  mAR: 0.5207007610346744
+  F1 score: 0.5636268128391203
+------- Regression Errors------------
+  Range Error:: 0.1960631807992394
+  Angle Error: 0.17332010108047374
+  Doppler Error: 0.6372292903130676
+------- Detection Scores - IOU Threshold 0.6 ------------
+  mAP: 0.5327392788151377
+  mAR: 0.5023155949220285
+  F1 score: 0.5170803105542622
+------- Regression Errors------------
+  Range Error:: 0.15872378069604182
+  Angle Error: 0.15380987771116822
+  Doppler Error: 0.6096009444275144
+------- Detection Scores - IOU Threshold 0.7 ------------
+  mAP: 0.412427251352838
+  mAR: 0.4657173906309293
+  F1 score: 0.4374553670138561
+------- Regression Errors------------
+  Range Error:: 0.11643647124308135
+  Angle Error: 0.13061983953750322
+  Doppler Error: 0.6051947213225756
+------- Detection Scores - IOU Threshold 0.8 ------------
+  mAP: 0.2610783643053463
+  mAR: 0.3856961185117218
+  F1 score: 0.3113818322002112
+------- Regression Errors------------
+  Range Error:: 0.07336261501331978
+  Angle Error: 0.1021866861194051
+  Doppler Error: 0.5609775386804546
+------- Detection Scores - IOU Threshold 0.9 ------------
+  mAP: 0.08550707774233798
+  mAR: 0.19501268097067495
+  F1 score: 0.11888620287571727
+------- Regression Errors------------
+  Range Error:: 0.0314791763794873
+  Angle Error: 0.05939455940745477
+  Doppler Error: 0.4867915290568561
+------- Summary ------------
+------- Train ------------
+Means of Precision, Recall, F1_score, RangeError, AngleError, DopplerError:
+[0.6621338114714018, 0.6556416000488777, 0.6490428267252235, 0.12318993940873023, 0.10727886370185395, 0.604093135232746]
+confusion matrix of IoU of RD map, precision, recall, f1: 
+(0.1727517300333375, 0.17626362897006387, 0.8965925085495015, 0.2946092094503697)
+confusion matrix of IoU of RA map, precision, recall, f1: 
+(0.2848532445464407, 0.2875237141360776, 0.9684239136227497, 0.4434019928042369)
+------- Validation ------------
+Means of Precision, Recall, F1_score, RangeError, AngleError, DopplerError:
+[0.5341554694491519, 0.4628886374724009, 0.4897345925420489, 0.18294323524249653, 0.15510952057262448, 0.5964119317221309]
+confusion matrix of IoU of RD map, precision, recall, f1: 
+(0.0901399003883856, 0.09927725757182503, 0.4947884275728252, 0.1653730871721535)
+confusion matrix of IoU of RA map, precision, recall, f1: 
+(0.14523390625704877, 0.18562466846560113, 0.4002834833640026, 0.2536318658809441)
+------- Test ------------
+Means of Precision, Recall, F1_score, RangeError, AngleError, DopplerError:
+[0.5238028669093182, 0.4695506944600716, 0.4874869551377256, 0.18446051632654992, 0.1671788624324319, 0.6208852736172712]
+confusion matrix of IoU of RD map, precision, recall, f1: 
+(0.10126808358635471, 0.11373182933736077, 0.4802690582959641, 0.1839117742458644)
+confusion matrix of IoU of RA map, precision, recall, f1: 
+(0.14179857619536854, 0.1825673682485426, 0.3883756256692482, 0.24837756702738428)

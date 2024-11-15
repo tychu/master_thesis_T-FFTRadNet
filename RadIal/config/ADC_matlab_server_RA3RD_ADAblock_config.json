@@ -1,0 +1,69 @@
+{
+    "name": "SwinTransformer_RD",
+    "seed":3,
+    "data_mode":"ADC",
+    "optuna_project": "TFFTRadNet-ADC-RA3RD-ADA",
+    "model": {
+        "depths": [2,2,6,2],
+        "channels": [32,40,48,56],
+        "patch_size": 2,
+        "in_chans": 8,
+        "embed_dim": 48,
+        "drop_rates": [0.0,0.0,0.0],
+        "num_heads": [3,6,12,24],
+        "DetectionHead": "True",
+        "SegmentationHead": "False"
+    },
+    "dataset": {
+        "root_dir": "/imec/other/dl4ms/chu06/public/data/",
+        "data_folder":"simulation_sequential_rw_data_DDA_rawADC/",
+        "geometry":{
+            "ranges": [512,896,72],
+            "resolution": [0.17,0.2,0.5],
+            "size": 3
+        },
+        "statistics":{
+            "input_mean":[],
+            "input_std":[],
+            "reg_mean":[0.3676954382230018, 0.29876685086155963, 0.2491984329140705],
+            "reg_std":[0.6753994169817015, 0.6905939539763425, 0.4330996653957303]
+        }
+    },
+    "losses": {
+        "fct":"PixorLoss",
+        "classification": "FocalLoss",
+        "regression": "smoothL1Loss",
+        "weight": [2,100,100000]
+    },
+    "lr_scheduler": {
+        "step_size": 10,
+        "gamma": 0.9
+    },
+    "asam": {
+        "rho": 0.5,
+        "eta": 0.01
+    },
+    "optimizer": {
+        "lr": 1e-4
+    },
+    "num_epochs":500,
+    "dataloader": {
+        "mode":"simulated_sequential",
+        "split":[0.7,0.15,0.15],
+        "train": {
+            "batch_size": 4,
+            "num_workers": 4
+    	},
+        "val": {
+            "batch_size": 4,
+            "num_workers": 4
+        },
+        "test": {
+            "batch_size": 1,
+            "num_workers": 1
+        }
+    },
+    "output": {
+	"dir": "/imec/other/dl4ms/chu06/public/model_checkpoint/TFFTRadNet/TFFTRadNet_ADC_RA3RD_ADA/"
+    }
+}

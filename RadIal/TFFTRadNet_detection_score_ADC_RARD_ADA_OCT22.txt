@@ -1,0 +1,25 @@
+------- Train ------------
+------- Validation ------------
+------- Test ------------
+------- Summary ------------
+------- Train ------------
+Means of Precision, Recall, F1_score, RangeError, AngleError, DopplerError:
+[0.14865317657382796, 0.232274649897886, 0.1743203487316215, 0.2745322442302848, 0.26967389185195184, 1.1192378790792634]
+confusion matrix of IoU of RD map, precision, recall, f1: 
+(0.0333488954934304, 0.0356172437221814, 0.3436765799853361, 0.06454527728024734)
+confusion matrix of IoU of RA map, precision, recall, f1: 
+(0.06377055555494353, 0.074406755042309, 0.3084917022841368, 0.11989531994834349)
+------- Validation ------------
+Means of Precision, Recall, F1_score, RangeError, AngleError, DopplerError:
+[0.1338397895409734, 0.1837337660978117, 0.14573165829956652, 0.2849660502703671, 0.3045971974119624, 1.4761596621412592]
+confusion matrix of IoU of RD map, precision, recall, f1: 
+(0.024849138491876466, 0.027348349361320256, 0.21378641259732828, 0.048493261219779885)
+confusion matrix of IoU of RA map, precision, recall, f1: 
+(0.04871573788346342, 0.059365970330840165, 0.2135574675486149, 0.09290551504792402)
+------- Test ------------
+Means of Precision, Recall, F1_score, RangeError, AngleError, DopplerError:
+[0.12388886872097954, 0.17684056660897418, 0.1432378377869744, 0.2805585236145759, 0.27553506733091937, 1.4881620289439843]
+confusion matrix of IoU of RD map, precision, recall, f1: 
+(0.024532894391230495, 0.027036936971708673, 0.2094170403587444, 0.04789088671634649)
+confusion matrix of IoU of RA map, precision, recall, f1: 
+(0.04415600759673249, 0.054216359728602136, 0.1922205344024703, 0.0845774142474429)

@@ -136,6 +136,20 @@ In each case, training can be resumed via the command:
 
 Note: You will need to modify the experiment name in the config file to resume training. We reccomend 'previous_experiment_name_resume'.
 
+### Hyperparameter tuning with optuna
+To do hyperparameter tuning
+```
+$ python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/6-Train_optuna.py --config /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/config/RD_matlab_server_config.json --trials 2
+```
+--config: path/to/the/config/file
+--trials: indicate the number of trials you want to test 
+
+### Hyperparameter tuning with optuna
+To do hyperparameter tuning and finetuning from checkpoint
+```
+python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/6-Train_optuna.py --config /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/config/RD_matlab_server_ft_config.json --resume /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/RADIal_SwinTransformer_RD.pth --trials 1
+```
+
 # Pre-trained Models
 
 Pre-trained models can be found at the following [link](https://drive.google.com/drive/folders/1xihOyEDL_hHrkTi4rdgJ3LvIJO_z_jIk?usp=sharing). These models can be utilized with the provided config files.

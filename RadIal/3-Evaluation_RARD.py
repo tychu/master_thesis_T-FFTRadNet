@@ -108,7 +108,7 @@ def main(config, checkpoint, plot):
 
     else:
         print('===========  Running the evaluation ==================:')
-        output_file = os.path.join('TFFTRadNet_detection_score_ADC_RARD_lr1-3e.txt')
+        output_file = os.path.join('TFFTRadNet_detection_score_ADC.txt')
         print("Saving scores to:", output_file)
         with open(output_file, 'a') as f:
             f.write('------- Train ------------\n')

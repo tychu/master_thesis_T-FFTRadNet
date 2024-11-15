@@ -106,7 +106,7 @@ def objective(trial, config, resume):
 
     enc = ra_encoder(geometry=config['dataset']['geometry'],
                      statistics=config['dataset']['statistics'],
-                     regression_layer=2)
+                     regression_layer=3)
 
     # Create the model
     # net = FFTRadNet(

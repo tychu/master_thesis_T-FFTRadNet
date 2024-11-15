@@ -81,7 +81,7 @@ class FFT_Net(nn.Module):
         self.doppler_net = NoShift_Doppler_Fourier_Net()
         self.cplx_transpose = CplxToCplx[torch.transpose]
         #self.norm = nn.InstanceNorm2d(32)
-        self.norm = nn.InstanceNorm2d(8)
+        self.norm = nn.InstanceNorm2d(8) # rx=4 * 2
         #self.activation = ComplexAct(act=nn.LeakyReLU(),use_phase=True)
 
     def forward(self,x):

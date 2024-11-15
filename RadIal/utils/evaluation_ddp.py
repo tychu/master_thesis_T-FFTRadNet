@@ -60,13 +60,13 @@ def run_evaluation(net, loader,encoder, check_perf=False, detection_loss=None,lo
 
                 #metrics.update(pred_map[0],true_map,np.asarray(encoder.decode(pred_obj,0.05)),true_obj,
                 #            threshold=0.2,range_min=5,range_max=100) 
-                start_time = time.time()
-                print("cpu: ", start_time)
+                #start_time = time.time()
+                #print("cpu: ", start_time)
                 metrics.update(pred_map,true_map,np.asarray(encoder.decode(pred_obj,0.05)),true_obj,
                            threshold=0.2,range_min=0,range_max=345) 
-                end_time = time.time()
-                computation_time = end_time - start_time
-                print(f"Computation time = {computation_time:.4f} seconds")
+                #end_time = time.time()
+                #computation_time = end_time - start_time
+                #print(f"Computation time = {computation_time:.4f} seconds")
                 # metrics.update(pred_map,true_map,np.asarray(encoder.decode(pred_obj,optuna_config['threshold'])),true_obj,
                 #              threshold=optuna_config['threshold'],range_min=0,range_max=345) 
                 
@@ -258,7 +258,9 @@ def run_FullEvaluation(net,loader,encoder,iou_threshold=0.5,config=None):
     # print('  mIoU',mIoU*100,'%')
 
 def run_FullEvaluation_(net,loader,encoder,iou_threshold=0.5,config=None):
-
+    metrics = Metrics()
+    metrics.reset()
+    
     net.eval()
     results = []
     kbar = pkbar.Kbar(target=len(loader), width=20, always_stateful=False)
@@ -279,13 +281,14 @@ def run_FullEvaluation_(net,loader,encoder,iou_threshold=0.5,config=None):
         out_obj = outputs.detach().cpu().numpy().copy()
 
         labels_object = data[2]
+        labels_RA_map = data[1].detach().cpu().numpy().copy()
 
 
-        for pred_obj,true_obj in zip(out_obj,labels_object):
+        for pred_RA,true_obj,true_RA_map in zip(out_obj,labels_object,labels_RA_map):
 
-            predictions['prediction']['objects'].append( np.asarray(encoder.decode(pred_obj,0.05)))
+            predictions['prediction']['objects'].append( np.asarray(encoder.decode(pred_RA,0.05)))
             predictions['label']['objects'].append(true_obj)
-
+            metrics.update_RA(true_RA_map, pred_RA, threshold=0.2)
 
         kbar.update(i)
 
@@ -293,9 +296,10 @@ def run_FullEvaluation_(net,loader,encoder,iou_threshold=0.5,config=None):
     for iou_ in iou_list:
         #results.append(GetFullMetrics(predictions['prediction']['objects'],predictions['label']['objects'],range_min=5,range_max=100,IOU_threshold=iou_))
         results.append(GetFullMetrics(predictions['prediction']['objects'],predictions['label']['objects'],range_min=0,range_max=345,IOU_threshold=iou_))
-    print(results)
+    #print(results)
+    miou_RA, prec_RA, re_RA, f1_RA = metrics.GetMetrics_RA()
 
-    return results
+    return results, miou_RA, prec_RA, re_RA, f1_RA
 
 
 def run_iEvaluation(net,loader,encoder,epochs, datamode,iou_threshold=0.5):

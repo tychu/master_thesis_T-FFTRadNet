@@ -5,7 +5,7 @@ import torch
 import random
 import numpy as np
 from model.FFTRadNet_ViT_ddp import FFTRadNet_ViT
-from model.FFTRadNet_ViT import FFTRadNet_ViT_ADC
+from model.FFTRadNet_ViT_ddp import FFTRadNet_ViT_ADC
 from dataset.dataset import RADIal
 from dataset.encoder_modi import ra_encoder
 from dataset.dataloader_ddp import CreateDataLoaders
@@ -66,10 +66,15 @@ def main(config, checkpoint,difficult):
                         detection_head = config['model']['DetectionHead'],
                         segmentation_head = config['model']['SegmentationHead'])
 
-        dataset = RADIal(root_dir = config['dataset']['root_dir'],
+        # dataset = RADIal(root_dir = config['dataset']['root_dir'],
+        #                     statistics= config['dataset']['statistics'],
+        #                     encoder=enc.encode,
+        #                     difficult=True,perform_FFT='ADC')
+        dataset = MATLAB(root_dir = config['dataset']['root_dir'],
+                         folder_dir = config['dataset']['data_folder'],
                             statistics= config['dataset']['statistics'],
-                            encoder=enc.encode,
-                            difficult=True,perform_FFT='ADC')
+                            encoder=enc.encode,perform_FFT='ADC')
+        
     batch_size = 4
     train_loader, val_loader, test_loader = CreateDataLoaders(dataset, batch_size, config['dataloader'],config['seed'])
 
@@ -83,17 +88,17 @@ def main(config, checkpoint,difficult):
     net.load_state_dict(dict['net_state_dict'])
 
     print('===========  Running the evaluation ==================:')
-    output_file = os.path.join('TFFTRadNet_detection_score.txt')
+    output_file = os.path.join('TFFTRadNet_detection_score_ADC.txt')
     print("Saving scores to:", output_file)
     with open(output_file, 'a') as f:
         f.write('------- Train ------------\n')
-    result_train = run_FullEvaluation_(net,train_loader,enc,config=config) #test_loader
+    result_train, RA_iou_train, prec_RA_train, re_RA_train, f1_RA_train = run_FullEvaluation_(net,train_loader,enc,config=config) #test_loader
     with open(output_file, 'a') as f:
         f.write('------- Validation ------------\n')
-    result_val = run_FullEvaluation_(net,val_loader,enc,config=config) 
+    result_val, RA_iou_val, prec_RA_val, re_RA_val, f1_RA_val = run_FullEvaluation_(net,val_loader,enc,config=config) 
     with open(output_file, 'a') as f:
         f.write('------- Test ------------\n')
-    result_test = run_FullEvaluation_(net,test_loader,enc,config=config) 
+    result_test, RA_iou_test, prec_RA_test, re_RA_test, f1_RA_test = run_FullEvaluation_(net,test_loader,enc,config=config) 
 
     # Transpose the data, excluding the IOU_threshold (index 0)
     transposed_train_data = list(zip(*result_train))[1:]  # Skips the first element (IOU_threshold)
@@ -110,12 +115,19 @@ def main(config, checkpoint,difficult):
         f.write('------- Train ------------\n')
         f.write('Means of Precision, Recall, F1_score, RangeError, AngleError:\n')
         f.write(f"{means_train}\n")
+        f.write('confusion matrix of IoU of RA map, precision, recall, f1: \n')
+        f.write(f"{RA_iou_train, prec_RA_train, re_RA_train, f1_RA_train}\n")   
         f.write('------- Validation ------------\n')
         f.write('Means of Precision, Recall, F1_score, RangeError, AngleError:\n')
+        f.write('confusion matrix of IoU of RA map, precision, recall, f1: \n')
+        f.write(f"{RA_iou_val, prec_RA_val, re_RA_val, f1_RA_val}\n")   
         f.write(f"{means_val}\n")
         f.write('------- Test ------------\n')
         f.write('Means of Precision, Recall, F1_score, RangeError, AngleError:\n')
         f.write(f"{means_test}\n")
+        f.write('confusion matrix of IoU of RA map, precision, recall, f1: \n')
+        f.write(f"{RA_iou_test, prec_RA_test, re_RA_test, f1_RA_test}\n")
+ 
 
 
 

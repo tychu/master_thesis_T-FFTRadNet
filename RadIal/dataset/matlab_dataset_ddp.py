@@ -95,7 +95,7 @@ class MATLAB(Dataset):
         #print("csv file indx :", csv_file)
         #csv_file = os.path.join(self.root_dir, 'ground_truth/', self.csv_files[idx])
         box_labels = pd.read_csv(csv_file).to_numpy()
-        #print(box_labels.shape)
+        print("box_labels: ", box_labels.shape)
 
 
         ######################

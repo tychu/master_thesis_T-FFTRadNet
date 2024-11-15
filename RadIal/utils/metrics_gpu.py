@@ -55,7 +55,7 @@ def perform_nms(valid_class_predictions, valid_box_predictions, nms_threshold):
     sorted_indices = torch.argsort(valid_class_predictions, descending=True)
     sorted_box_predictions = valid_box_predictions[sorted_indices]
     sorted_class_predictions = valid_class_predictions[sorted_indices]
-    print("sorted_box_predictions.shape[0]: ", sorted_box_predictions.size(0))
+    #print("sorted_box_predictions.shape[0]: ", sorted_box_predictions.size(0))
     #keep = []
     while sorted_box_predictions.size(0) > 0:
         largest = sorted_box_predictions[0]
@@ -64,10 +64,10 @@ def perform_nms(valid_class_predictions, valid_box_predictions, nms_threshold):
         if sorted_box_predictions.size(0) == 1:
             break
 
-        start_time = time.time()
+        #start_time = time.time()
         ious = bbox_iou(largest, sorted_box_predictions[1:])
-        end_time = time.time()
-        print("computation time: ", end_time-start_time)
+        #end_time = time.time()
+        #print("computation time: ", end_time-start_time)
         indices = torch.where(ious < nms_threshold)[0] + 1
 
         sorted_box_predictions = sorted_box_predictions[indices]

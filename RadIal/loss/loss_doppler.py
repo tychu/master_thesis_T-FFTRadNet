@@ -39,10 +39,12 @@ def pixor_loss(batch_predictions, batch_labels,param):
     # batch_predictions = output (batch, output_dim, doppler, range_bin, angle_bin) 
     # [:, 0, :, :]: classification, [:, 1, :, :]: range,  [:, 2, :, :]: angle
     classification_label = batch_labels[:, 0, :, :, :].contiguous().flatten()
-
+    print("classification_prediction: ", classification_prediction.shape, "batch_predictions: ", batch_predictions.shape)
+    print("classification_label: ", classification_label.shape, "batch_labels: ", batch_labels.shape)
     if(param['classification']=='FocalLoss'):
         focal_loss = FocalLoss(gamma=2)
         classification_loss = focal_loss(classification_prediction, classification_label)
+        
     else:
         classification_loss = F.binary_cross_entropy(classification_prediction.double(), classification_label.double(),reduction='sum')
 

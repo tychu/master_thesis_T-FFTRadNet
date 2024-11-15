@@ -54,7 +54,7 @@ class Detection_Header(nn.Module):
         self.bn4 = nn.BatchNorm2d(96)
 
         #self.clshead = conv3x3(96, 1, bias=True) 
-        self.con_cls =  conv3x3(96, 32, bias=bias) # channel num: doppler dim
+        self.con_cls =  conv3x3(96, 72, bias=bias) # channel num: doppler dim
         self.clshead = nn.Conv3d(in_channels=1, out_channels=1, 
                                 kernel_size=(3, 3, 3), stride= 1, 
                                 padding=(1, 1, 1), bias=bias) 
@@ -83,8 +83,8 @@ class Detection_Header(nn.Module):
         x = x.unsqueeze(1)  #  shape: [batch, 1, channel_dim=doppler=32, range, angle]
         x = x.permute(0,1,3,4,2)
 
-        cls = torch.sigmoid(self.clshead(x)) # [batch, 1, channel_dim=doppler=32, range, angle]
-        reg = self.reghead(x) #   shape: [batch, 3, channel_dim=doppler=32, range, angle]
+        cls = torch.sigmoid(self.clshead(x)) # [batch, 1, range, angle, channel_dim=doppler=32]
+        reg = self.reghead(x) #   shape: [batch, 3, range, angle, channel_dim=doppler=32]
 
         return torch.cat([cls, reg], dim=1)
 

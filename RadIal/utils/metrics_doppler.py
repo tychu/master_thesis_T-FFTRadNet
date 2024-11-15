@@ -105,6 +105,18 @@ def process_predictions_FFT(batch_predictions, confidence_threshold=0.1, nms_thr
     point_cloud_reg_predictions = np.asarray(point_cloud_reg_predictions)
     point_cloud_class_predictions = batch_predictions[:,-1] # (i, 1) # row: # of targets; column: R A V C [:, -1]: C
 
+    prediction = point_cloud_class_predictions
+    plt.figure(figsize=(8, 6))
+    plt.hist(prediction.ravel(), bins=50, color='purple')
+    plt.title(f'Histogram of Prediction Values ')
+    plt.xlabel('Prediction Value')
+    plt.ylabel('Frequency')
+    plt.ylim(0, 1000)
+    filepath = os.path.join("/imec/other/dl4ms/chu06/public/", 'histogram_doppler.png')
+    plt.savefig(filepath)
+    print(f'Plot saved to {filepath}')
+    plt.close()
+    raise Exception("finishing plot hist")
     # get valid detections
     validity_mask = np.where(point_cloud_class_predictions > confidence_threshold, True, False)
     #print("confidence_threshold: ", confidence_threshold)
@@ -159,13 +171,15 @@ def GetFullMetrics(predictions,object_labels,range_min=5,range_max=100,IOU_thres
             #    print(frame_id)
 
             pred= predictions[frame_id] # [i, 4]  encoder.decode R A V C
-            labels = object_labels[frame_id] # [4, 4] map [0, R, A, V] [1, R, A, V] [2, R, A, V] [3, R, A, V] 
+            labels = object_labels[frame_id] # [4, 4] data[2] pd.read_csv(csv_file).to_numpy()
+            labels = labels[:, -1]
 
             # get final bounding box predictions
             Object_predictions = []
             ground_truth_box_corners = []
 
             if(len(pred)>0):
+                # process_predictions_FFT:  R A V C -> C  R A V 
                 Object_predictions = process_predictions_FFT(pred,confidence_threshold=threshold) # [0, :] cls, [1:, :] reg
 
             if(len(Object_predictions)>0):

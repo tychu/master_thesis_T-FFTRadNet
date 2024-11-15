@@ -1,0 +1,20 @@
+------- Train ------------
+------- Train ------------
+------- Validation ------------
+------- Test ------------
+------- Summary ------------
+------- Train ------------
+Means of Precision, Recall, F1_score, RangeError, AngleError:
+[0.8705900062061475, 0.9255175884720543, 0.8972138868693266, 0.07425033261911622, 0.058963583103440825]
+confusion matrix of IoU of RA map, precision, recall, f1: 
+(0.9964293744178327, 0.9966161045580857, 0.9998119997851426, 0.9982114941665751)
+------- Validation ------------
+Means of Precision, Recall, F1_score, RangeError, AngleError:
+confusion matrix of IoU of RA map, precision, recall, f1: 
+(0.8085900607150889, 0.8915059255218922, 0.8968424203122661, 0.8941662107723679)
+[0.7057711351358438, 0.729713785341452, 0.7175427432241572, 0.15186506430679214, 0.1227682846273724]
+------- Test ------------
+Means of Precision, Recall, F1_score, RangeError, AngleError:
+[0.6613220599699747, 0.6867904900910159, 0.6738155664917788, 0.1659047620281803, 0.11822418707193935]
+confusion matrix of IoU of RA map, precision, recall, f1: 
+(0.7783906916497308, 0.887615555046222, 0.8634922207908037, 0.8753877258856475)

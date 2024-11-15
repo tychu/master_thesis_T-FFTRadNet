@@ -256,7 +256,7 @@ def GetFullMetrics(predictions,object_labels,range_min=5,range_max=100,IOU_thres
     F1_score = (np.mean(precision)*np.mean(recall))/((np.mean(precision) + np.mean(recall))/2)
 
 
-    output_file = os.path.join('TFFTRadNet_detection_score_ADC_RARD_lr1-3e.txt')
+    output_file = os.path.join('TFFTRadNet_detection_score_ADC.txt')
     print("Saving scores to:", output_file)
     with open(output_file, 'a') as f:
         f.write('------- Detection Scores - IOU Threshold {0} ------------\n'.format(IOU_threshold))

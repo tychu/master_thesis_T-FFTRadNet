@@ -41,7 +41,7 @@ def train(config, net, train_loader, optimizer, scheduler, history, kbar):
             inputs = data[0].to('cuda').float()
         #inputs = data[0].to('cuda').float()
 
-        label_map = data[1].to('cuda').float()
+        label_map = data[1].to('cuda').float() # encode(label) data[1] (batch, map) map[0-3,R,A,V]
 
         # reset the gradient
         optimizer.zero_grad()
@@ -181,7 +181,7 @@ def objective(trial, config, resume):
     #batch_size = config['dataloader']['train']['batch_size'] # 
     batch_size = 4 #optuna_para_config['batch_size']
     if batch_size == 4 or batch_size == 8:
-        num_epochs = 150
+        num_epochs = 100 # 150
     elif batch_size == 16 or batch_size == 32:
         num_epochs = 200
     
@@ -270,8 +270,8 @@ def objective(trial, config, resume):
         checkpoint['history'] = history
         checkpoint['detectionhead_output'] = predictions
 
-
-        torch.save(checkpoint,filename)
+        if epoch >= 60:
+            torch.save(checkpoint,filename)
             
         print('')
     
@@ -299,7 +299,7 @@ if __name__ == '__main__':
 
     # Specific parameter combination for the first trial
     fixed_params = {
-        "lr": 1e-3,
+        "lr": 1e-4,
         "step_size": 10,
         #"batch_size": 4,
         #"embed_dim": 48
@@ -327,14 +327,14 @@ if __name__ == '__main__':
         value=baseline_score,
         params=fixed_params,
         distributions={
-            "lr": optuna.distributions.FloatDistribution(1e-5, 1e-3, log=True),
+            "lr": optuna.distributions.FloatDistribution(1e-5, 5e-3, log=True),
             "step_size": optuna.distributions.IntDistribution(5, 20, step=5),
             #"embed_dim": optuna.distributions.IntDistribution(24, 48, step=24), 
             #"batch_size": optuna.distributions.IntDistribution(4, 8, step=4),
         }
     ))
  
-    study.optimize(lambda trial: objective(trial, config, args.resume), n_trials=args.trials)
+    #study.optimize(lambda trial: objective(trial, config, args.resume), n_trials=args.trials)
 
     pruned_trials = study.get_trials(deepcopy=False, states=[TrialState.PRUNED])
     complete_trials = study.get_trials(deepcopy=False, states=[TrialState.COMPLETE])

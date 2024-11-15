@@ -54,8 +54,9 @@ def train(config, net, train_loader, optimizer, scheduler, history, kbar):
             outputs = net(inputs)
 
         classif_loss, reg_loss = pixor_loss(outputs, label_map, config['losses'])
-        running_cls_loss += classif_loss.item() * inputs.size(0)
-        running_reg_loss += reg_loss.item() * inputs.size(0)
+        
+        #running_cls_loss += classif_loss.item() * inputs.size(0)
+        #running_reg_loss += reg_loss.item() * inputs.size(0)
 
         classif_loss *= config['losses']['weight'][0]
         reg_loss *= config['losses']['weight'][1]
@@ -63,12 +64,15 @@ def train(config, net, train_loader, optimizer, scheduler, history, kbar):
         loss.backward()
         optimizer.step()
         running_loss += loss.item() * inputs.size(0)
+        print("running_loss: ", running_loss)
+        print("inputs.size(0): ", inputs.size(0))
         
 
         #kbar.update(i, values=[("loss", loss.item()), ("class", classif_loss.item()), ("reg", reg_loss.item()) ] )
 
     scheduler.step()
     history['train_loss'].append(running_loss / len(train_loader.dataset))
+    print("running_loss / len(train_loader.dataset): ", running_loss / len(train_loader.dataset))
     history['lr'].append(scheduler.get_last_lr()[0])
 
     return running_loss / len(train_loader.dataset), outputs, label_map, running_cls_loss/ len(train_loader.dataset), running_reg_loss/ len(train_loader.dataset)
@@ -226,7 +230,7 @@ def objective(trial, config, resume):
         kbar = pkbar.Kbar(target=len(train_loader), epoch=epoch, num_epochs=num_epochs, width=20, always_stateful=False)
 
         loss,predictions, ground_truth, cls_loss, reg_loss  = train(config, net, train_loader, optimizer, scheduler, history, kbar)
-
+        #raise Exception("finishing checking one epoch")
         
         # tra = run_evaluation(trial, net, train_loader, enc, threshold, check_perf=(epoch >= 1),
         #                       detection_loss=pixor_loss, segmentation_loss=None,

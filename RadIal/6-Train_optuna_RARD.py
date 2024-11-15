@@ -61,7 +61,7 @@ def train(config, net, train_loader, optimizer, scheduler, history, kbar):
         #print("RD loss")
         classif_loss_rd, reg_loss_rd = pixor_loss(outputs['RD'], label_rd_map, config['losses'])
         classif_loss = classif_loss_ra + classif_loss_rd
-        reg_loss = reg_loss_ra + reg_loss_rd*3
+        reg_loss = reg_loss_ra + reg_loss_rd
 
         mvloss = MVloss(outputs)
         running_mv_loss += mvloss.item() * inputs.size(0)
@@ -127,14 +127,14 @@ def objective(trial, config, resume):
     # Set up the config as per trial parameters
     optuna_para_config = {
         "optimizer": {
-            "lr": trial.suggest_float("lr", 1e-4, 1e-3, log=True), # original: 1-e4
-            "step_size": trial.suggest_int('step_size', 5, 15, step=5) # original: 10
+            "lr": trial.suggest_float("lr", 1e-5, 1e-3, log=True), # original: 1-e4
+            "step_size": trial.suggest_int('step_size', 5, 20, step=5) # original: 10
         },
         #  "model": {
         #       "embed_dim": trial.suggest_categorical('embed_dim', [24, 48]), 
         # #     "mimo_layer": trial.suggest_int('mimo_layer', 64, 192, step=64) # original: 192
         #  },
-        #"batch_size": trial.suggest_categorical('batch_size', [4, 8]), # original: 4
+        "batch_size": trial.suggest_categorical('batch_size', [4, 8]), # original: 4
         #"threshold":  trial.suggest_float("FFT_confidence_threshold", 0.1, 0.2, step=0.05) # original: 0.2
     }
     #print("config['dataset']['geometry']: ", config['dataset']['geometry'])
@@ -214,7 +214,7 @@ def objective(trial, config, resume):
     # set num_epochs
     # num_epochs = int(config['num_epochs'])
     #batch_size = config['dataloader']['train']['batch_size'] # 
-    batch_size = 4 #optuna_para_config['batch_size']
+    batch_size = optuna_para_config['batch_size']
     if batch_size == 4 or batch_size == 8:
         num_epochs = 100# 150
     elif batch_size == 16 or batch_size == 32:
@@ -317,12 +317,12 @@ def objective(trial, config, resume):
         checkpoint['history'] = history
         checkpoint['detectionhead_output'] = predictions
 
-        if epoch >= 60:
+        if epoch >= 20:
             torch.save(checkpoint,filename)
             print('')
     
     # report the final validation accuracy to wandb
-    #wandb.run.summary["final accuracy"] = F1_score
+    wandb.run.summary["final accuracy"] = F1_score
     wandb.run.summary["state"] = "completed"
     wandb.finish(quiet=True)
 
@@ -347,7 +347,7 @@ if __name__ == '__main__':
     fixed_params = {
         "lr": 1e-3,
         "step_size": 10,
-        #"batch_size": 4,
+        "batch_size": 4,
         #"embed_dim": 48
     }
 
@@ -362,8 +362,9 @@ if __name__ == '__main__':
     study = optuna.create_study(direction='maximize', study_name='FFTRadNet_optimization', 
                                 #storage = "postgresql://chu06:hello_psql@localhost:35931/mydb",
                                 load_if_exists = True,
-                                pruner=optuna.pruners.PercentilePruner(50.0, n_startup_trials=3,
-                                           n_warmup_steps=30, interval_steps=10))
+                                pruner=optuna.pruners.PercentilePruner(50.0, n_startup_trials=2,
+                                           n_warmup_steps=20, interval_steps=5)
+                                )
     
     study = optuna.create_study(direction='maximize')
 
@@ -373,10 +374,10 @@ if __name__ == '__main__':
         value=baseline_score,
         params=fixed_params,
         distributions={
-            "lr": optuna.distributions.FloatDistribution(1e-4, 1e-3, log=True),
-            "step_size": optuna.distributions.IntDistribution(5, 15, step=5),
+            "lr": optuna.distributions.FloatDistribution(1e-5, 1e-3, log=True),
+            "step_size": optuna.distributions.IntDistribution(5, 20, step=5),
             #"embed_dim": optuna.distributions.IntDistribution(24, 48, step=24), 
-            #"batch_size": optuna.distributions.IntDistribution(4, 8, step=4),
+            "batch_size": optuna.distributions.IntDistribution(4, 8, step=4),
         }
     ))
  

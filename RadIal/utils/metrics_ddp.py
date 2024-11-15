@@ -12,6 +12,7 @@ import time
 import matplotlib.pyplot as plt
 
 from torchvision.ops import box_iou
+from sklearn.metrics import confusion_matrix
 
 def RA_to_cartesian_box(data):
     L = 4
@@ -20,7 +21,7 @@ def RA_to_cartesian_box(data):
     boxes = []
     for i in range(len(data)):
         
-        x = np.sin(np.radians(data[i][1])) * data[i][0]
+        x = np.sin(np.radians(data[i][1])) * data[i][0] # data[i][0]: R, data[i][1]: A
         y = np.cos(np.radians(data[i][1])) * data[i][0]
 
         boxes.append([x - W/2,y,x + W/2,y, x + W/2,y+L,x - W/2,y+L])
@@ -97,12 +98,12 @@ def process_predictions_FFT(batch_predictions, confidence_threshold=0.1, nms_thr
 
     # process targets and perform NMS for each prediction in batch
     final_batch_predictions = None  # store final bounding box predictions
-    
-    point_cloud_reg_predictions = RA_to_cartesian_box(batch_predictions)
+    #print("batch_predictions: ", batch_predictions.shape) # (i, 3) # row: # of targets; column: R A C
+    point_cloud_reg_predictions = RA_to_cartesian_box(batch_predictions) 
     #print("finish RA_to_cartesian_box")
     #print("batch_predictions: ", batch_predictions.shape)
-    point_cloud_reg_predictions = np.asarray(point_cloud_reg_predictions)
-    point_cloud_class_predictions = batch_predictions[:,-1]
+    point_cloud_reg_predictions = np.asarray(point_cloud_reg_predictions) #(i, 8)
+    point_cloud_class_predictions = batch_predictions[:,-1] # (i, 1) # row: # of targets; column: R A C [:, -1]: C
 
 # #############################
 #     prediction = point_cloud_class_predictions
@@ -122,8 +123,8 @@ def process_predictions_FFT(batch_predictions, confidence_threshold=0.1, nms_thr
     validity_mask = np.where(point_cloud_class_predictions > confidence_threshold, True, False)
     #print("confidence_threshold: ", confidence_threshold)
     
-    valid_box_predictions = point_cloud_reg_predictions[validity_mask]
-    valid_class_predictions = point_cloud_class_predictions[validity_mask]
+    valid_box_predictions = point_cloud_reg_predictions[validity_mask] # (i_mask, 8)
+    valid_class_predictions = point_cloud_class_predictions[validity_mask] # (i_mask, 1)
     #print("point_cloud_reg_predictions: ", point_cloud_reg_predictions.shape)
     #print("valid_box_predictions: ", valid_box_predictions.shape)
 
@@ -132,6 +133,7 @@ def process_predictions_FFT(batch_predictions, confidence_threshold=0.1, nms_thr
     #print("perform_nms")
     final_class_predictions, final_box_predictions = perform_nms(valid_class_predictions, valid_box_predictions,
                                                                  nms_threshold)
+    # final_box_predictions (i_sorted, 8)
 
     
     # concatenate point_cloud_id, confidence score and bounding box prediction | shape: [N_FINAL, 1+1+8]
@@ -169,15 +171,16 @@ def GetFullMetrics(predictions,object_labels,range_min=5,range_max=100,IOU_thres
             #if frame_id % 100 == 0:
             #    print(frame_id)
 
-            pred= predictions[frame_id]
+            pred= predictions[frame_id] # [i, 4]  encoder.decode R A C
             labels = object_labels[frame_id]
+            #print("labels: ", labels.shape) # [3, 3] map [0, R, A] [1, R, A] [2, R, A]
 
             # get final bounding box predictions
             Object_predictions = []
             ground_truth_box_corners = []
 
             if(len(pred)>0):
-                Object_predictions = process_predictions_FFT(pred,confidence_threshold=threshold)
+                Object_predictions = process_predictions_FFT(pred,confidence_threshold=threshold) # [0, :] cls, [1:, :] reg
 
             if(len(Object_predictions)>0):
                 max_distance_predictions = (Object_predictions[:,2]+Object_predictions[:,4])/2
@@ -188,10 +191,12 @@ def GetFullMetrics(predictions,object_labels,range_min=5,range_max=100,IOU_thres
 
             if(len(labels)>0):
                 ids = np.where((labels[:,0]>=range_min) & (labels[:,0] <= range_max))
+                #print("labels[:,0]: ", labels[:,0].shape) # [3]
                 labels = labels[ids]
 
             if(len(labels)>0):
-                ground_truth_box_corners = np.asarray(RA_to_cartesian_box(labels))
+                ground_truth_box_corners = np.asarray(RA_to_cartesian_box(labels)) # boxes.append([x - W/2,y,x + W/2,y, x + W/2,y+L,x - W/2,y+L])
+                #print("ground_truth_box_corners: ", ground_truth_box_corners.shape) # (3, 8) x, y 4 points
                 NbGT += ground_truth_box_corners.shape[0]
 
             # valid predictions and labels exist for the currently inspected point cloud
@@ -208,8 +213,8 @@ def GetFullMetrics(predictions,object_labels,range_min=5,range_max=100,IOU_thres
                         used_gt[ids]=1
 
                         # cummulate errors
-                        range_error += np.sum(np.abs(ground_truth_box_corners[ids,-2] - prediction[-2]))
-                        angle_error += np.sum(np.abs(ground_truth_box_corners[ids,-1] - prediction[-1]))
+                        range_error += np.sum(np.abs(ground_truth_box_corners[ids,-2] - prediction[-2])) # prediction[-2]: x - W/2 gt_x -W/2 - (pre_x -W/2) = gt_x - pre_x
+                        angle_error += np.sum(np.abs(ground_truth_box_corners[ids,-1] - prediction[-1])) # prediction[-1]: y+L = gt_y - L - (pre_y - L) = gt_y - pre_y
                         nbObjects+=len(ids)
                     else:
                         FP+=1
@@ -239,7 +244,7 @@ def GetFullMetrics(predictions,object_labels,range_min=5,range_max=100,IOU_thres
     F1_score = (np.mean(precision)*np.mean(recall))/((np.mean(precision) + np.mean(recall))/2)
 
 
-    output_file = os.path.join('TFFTRadNet_detection_score.txt')
+    output_file = os.path.join('TFFTRadNet_detection_score_RAmap.txt')
     print("Saving scores to:", output_file)
     with open(output_file, 'a') as f:
         f.write('------- Detection Scores - IOU Threshold {0} ------------\n'.format(IOU_threshold))
@@ -353,6 +358,11 @@ class Metrics():
         self.recall = 0
         self.mIoU =0
 
+        self.miou_RA = 0
+        self.RA_tp = 0
+        self.RA_fp = 0
+        self.RA_fn = 0
+
     def update(self,PredMap,label_map,ObjectPred,Objectlabels,threshold=0.2,range_min=5,range_max=70):
         #print("cpu")
 
@@ -383,4 +393,40 @@ class Metrics():
 
         return self.precision,self.recall,self.mIoU , self.TP, self.FP, self.FN 
 
+    def update_RA(self, pre_obj_map, pre_RA, threshold):
 
+        # pre_obj_map map[0, :, :]: cls 
+        #print("pre_obj_map: ", pre_obj_map.shape)
+        RA_gorund_truth_map = pre_obj_map[0, :, :]
+        # pre_RD [cls, range, doppler]
+        #print("pre_RD: ", pre_RD.shape)
+        RA_predict_map = pre_RA[0, :, :]
+        RA_binary_map = (RA_predict_map >= threshold).astype(int)
+        # confusion matrix
+        tn, fp, fn, tp = confusion_matrix(RA_gorund_truth_map.flatten(), RA_binary_map.flatten()).ravel()
+        #print("fp, fn, tp: ", fp, fn, tp)
+        self.RA_tp += tp
+        self.RA_fp += fp
+        self.RA_fn += fn
+
+    def GetMetrics_RA(self,):
+        
+        if(self.RA_tp+self.RA_fp+self.RA_fn!=0):
+            self.miou_RA = self.RA_tp / (self.RA_tp+self.RA_fp+self.RA_fn)
+        else:
+            self.miou_RA = 0
+        if(self.RA_tp+self.RA_fp != 0):
+            precision = ( self.RA_tp / (self.RA_tp+self.RA_fp)) # When there is a detection, how much I m sure
+        else:
+            precision = 0
+        if (self.RA_tp+self.RA_fn != 0):
+            recall = (self.RA_tp / (self.RA_tp+self.RA_fn))
+        else:
+            recall = 0
+
+        if precision+recall != 0:
+            f1 = precision*recall/((precision+recall)/2)
+        else:
+            f1 = 0.0
+
+        return self.miou_RA, precision, recall, f1
