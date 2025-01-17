@@ -1,3 +1,114 @@
+# Master thesis: Radar Image Reconstruction with Raw ADC data
+
+## Introduction
+
+This thesis used T-FFTRadNet as based model and alter it into two models, extended T-FFTRadNet and ADAT-FFTRadNet.
+To train the model
+
+
+|          Model         |                description                   |      Train     |  Evaluation |
+|------------------------|----------------------------------------------|---------------|-----------------|
+|      T-FFTRadNet       |   The original model from the paper          | 6-Train_optuna.py         |   
+|   Extended T-FFTRadNet | Additional prediction on doppler values      | 6-Train_optuna_RARD.py         |    3-Evaluation_RARD.py        |
+|   ADAT-FFTRadNet       | Alter the encoder structure with the backbone of TransRadar     |  6-Train_optuna_RARD_ADA.py         |      3-Evaluation_RARD_ADA.py      |
+
+# Training
+
+Train the model with Optuna (hyper-parameter tuning)
+
+## Hyperparameter tuning with optuna
+To do hyperparameter tuning
+```
+$ python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/6-Train_optuna.py --config /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/config/RD_matlab_server_config.json --trials 2
+```
+--config: path/to/the/config/file
+--trials: indicate the number of trials you want to test 
+
+For the initial training, since the config files provided include normalization constants for each of the differing input types. 
+To obtain your own normalization constants you can run the following command within the dataset folder:
+`$ python print_dataset_statistics.py`
+
+
+To do hyperparameter tuning and finetuning from checkpoint
+```
+$ python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/6-Train_optuna.py --config /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/config/RD_matlab_server_ft_config.json --resume /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/RADIal_SwinTransformer_RD.pth --trials 1
+```
+
+### Training command for each model
+
+1. T-FFTRadNet:
+(1)RD input
+```
+python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/6-Train_optuna.py --config /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/config/RD_matlab_server_config.json --trials 30
+```
+(2)ADC input
+```
+$ python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/6- Train_optuna.py --config /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/config/ADC_matlab_server_config.json --trials 30
+```
+
+2. Extended T-FFTRadNet
+```
+$ python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/6-Train_optuna_RARD.py --config /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/config/ADC_matlab_server_RARD_config.json --trials 60
+```
+
+3. ADAT-FFTRadNet
+```
+$ python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/6-Train_optuna_RARD_ADA.py -- config /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/config/ADC_matlab_server_RARD_ADAblock_config.json --trials 60
+
+```
+
+# Evaluation
+To do the evaluation and export the evaluation score file
+```
+$ python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/3-Evaluation_RARD.py --config /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/config/ADC_matlab_server_doppler_config.json -- checkpoint /imec/other/dl4ms/chu06/public/model_checkpoint/TFFTRadNet/TFFTRadNet_ADC_RARD/SwinTra nsformer_RD___Sep-23-2024___15:55:43/SwinTransformer_RD_epoch79_loss_291.2625_AP_0.0000 _AR_0.0000_trialnumber_00_batch04.pth
+```
+
+1. T-FFTRadNet:
+(1)RD input
+```
+$ python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/3-Evaluation.py --config /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/config/RD_matlab_server_config.json -- checkpoint /imec/other/dl4ms/chu06/public/model_checkpoint/TFFTRadNet/TFFTRadNet-optuna-10000/SwinTransformer_RD___Sep -01-2024___01:37:22/SwinTransformer_RD_epoch80_loss_11.9749_AP_0.8219_AR_0.9463_trialnumber_01_batch04.pth
+```
+(2)ADC input
+```
+$ python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/3-Evaluation.py --config /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/config/ADC_matlab_server_config.json -- checkpoint /imec/other/dl4ms/chu06/public/model_checkpoint/TFFTRadNet/TFFTRadNet_ADC/SwinTransformer_RD___Aug-31-2024___18:23:32/SwinTransformer_RD_epoch80_loss_16.8008_AP_0.7929_AR_0.8462_trialnumber_00_batch04.pth
+```
+
+2. Extended T-FFTRadNet
+```
+$ python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/3-Evaluation_RARD.py --config /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/config/ADC_matlab_server_doppler_config.json -- checkpoint /imec/other/dl4ms/chu06/public/model_checkpoint/TFFTRadNet/TFFTRadNet_ADC_RARD/SwinTra nsformer_RD___Sep-23-2024___15:55:43/SwinTransformer_RD_epoch79_loss_291.2625_AP_0.0000 _AR_0.0000_trialnumber_00_batch04.pth
+```
+--plot: plot the detection and output prabaility map and without calculating score
+
+3. ADAT-FFTRadNet
+```
+$ python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/3-Evaluation_RARD_ADA.py--config /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/config/ADC_matlab_server_RARD_ADA_config.json --checkpoint /imec/other/dl4ms/chu06/public/model_checkpoint/TFFTRadNet/TFFTRadNet_ADC_RARD_AD A/SwinTransformer_RD___Oct-24-2024___15:58:14/SwinTransformer_RD_epoch60_loss_ 706.7412_AP_0.5153_AR_0.8890_trialnumber_00_batch08.pth --plot --eval
+```
+--plot: plot the detection and output prabaility map
+--eval: calculate the evaluation score 
+
+## Evaluation plot with IoU threshold 
+
+The graph in the thesis' rersults and insights
+1. testing dataset: T-FFTRadNet with RD input, T-FFTRadNet with ADC input and extended T-FFTRadNet with ADC input
+```
+$ python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/7-Evaluation_plot.py /imec/other/dl4ms/chu06/TFFTRadNet_detection_score_RD.txt /imec/other/dl4ms/chu06/TFFTRadNet_detection_score_ADC.txt /imec/other/dl4ms/chu06/TFFTRadNet_detection_score_ADC_RARD_lr1-3e.txt
+```
+
+1. training dataset: T-FFTRadNet with ADC input, extended T-FFTRadNet with ADC input and  ADAT-FFTRadNet with ADC input
+```
+$ python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/7-Evaluation_plot.py /imec/other/dl4ms/chu06/TFFTRadNet_detection_score_ADC.txt /imec/other/dl4ms/chu06/TFFTRadNet_detection_score_ADC_RARD_lr1-3e.txt /imec/other/dl4ms/chu06/TFFTRadNet_detection_score_ADC_RARD_ADAblock.txt
+```
+
+# Backup code
+
+For parallel computing implementation: 6-Train_optuna_lightning.py
+
+For different weights loss for the RD and RA prediction map:  6-Train_optuna_RA3RD.py and 6-Train_optuna_RA3RD_ADA.py
+
+
+# Below are ReadME content from the original paper
+
+
 # T-FFTRadNet:  Object Detection with Swin Vision Transformers from Raw ADC Radar Signals
 Accepted into the Bravo Workshop at ICCV 2023.
 
@@ -136,19 +247,7 @@ In each case, training can be resumed via the command:
 
 Note: You will need to modify the experiment name in the config file to resume training. We reccomend 'previous_experiment_name_resume'.
 
-### Hyperparameter tuning with optuna
-To do hyperparameter tuning
-```
-$ python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/6-Train_optuna.py --config /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/config/RD_matlab_server_config.json --trials 2
-```
---config: path/to/the/config/file
---trials: indicate the number of trials you want to test 
 
-### Hyperparameter tuning with optuna
-To do hyperparameter tuning and finetuning from checkpoint
-```
-python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/6-Train_optuna.py --config /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/config/RD_matlab_server_ft_config.json --resume /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/RADIal_SwinTransformer_RD.pth --trials 1
-```
 
 # Pre-trained Models
 
