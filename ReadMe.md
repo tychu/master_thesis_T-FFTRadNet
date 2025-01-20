@@ -75,9 +75,10 @@ $ python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/3-Evaluation.py --config /im
 
 2. Extended T-FFTRadNet
 ```
-$ python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/3-Evaluation_RARD.py --config /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/config/ADC_matlab_server_doppler_config.json -- checkpoint /imec/other/dl4ms/chu06/public/model_checkpoint/TFFTRadNet/TFFTRadNet_ADC_RARD/SwinTra nsformer_RD___Sep-23-2024___15:55:43/SwinTransformer_RD_epoch79_loss_291.2625_AP_0.0000 _AR_0.0000_trialnumber_00_batch04.pth
+$ python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/3-Evaluation_RARD.py --config /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/config/ADC_matlab_server_doppler_config.json -- checkpoint /imec/other/dl4ms/chu06/public/model_checkpoint/TFFTRadNet/TFFTRadNet_ADC_RARD/SwinTra nsformer_RD___Sep-23-2024___15:55:43/SwinTransformer_RD_epoch79_loss_291.2625_AP_0.0000 _AR_0.0000_trialnumber_00_batch04.pth --plot --eval
 ```
---plot: plot the detection and output prabaility map and without calculating score
+--plot: plot the detection and output prabaility map
+--eval: calculate the evaluation score 
 
 3. ADAT-FFTRadNet
 ```
