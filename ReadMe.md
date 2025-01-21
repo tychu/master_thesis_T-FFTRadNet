@@ -8,7 +8,7 @@ To train the model
 
 |          Model         |                description                   |      Train     |  Evaluation |
 |------------------------|----------------------------------------------|---------------|-----------------|
-|      T-FFTRadNet       |   The original model from the paper          | 6-Train_optuna.py         |   
+|      T-FFTRadNet       |   The original model from the paper          | 6-Train_optuna.py         |    3-Evaluation |
 |   Extended T-FFTRadNet | Additional prediction on doppler values      | 6-Train_optuna_RARD.py         |    3-Evaluation_RARD.py        |
 |   ADAT-FFTRadNet       | Alter the encoder structure with the backbone of TransRadar     |  6-Train_optuna_RARD_ADA.py         |      3-Evaluation_RARD_ADA.py      |
 
