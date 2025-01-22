@@ -2,9 +2,13 @@
 
 ## Introduction
 
-This thesis used T-FFTRadNet as based model and alter it into two models, extended T-FFTRadNet and ADAT-FFTRadNet.
-To train the model
+This repository contains code and models for radar image reconstruction using raw ADC data. The models developed for this thesis are based on the T-FFTRadNet architecture. We explore three variations of this model:
 
+- T-FFTRadNet: The original model from the paper used as a baseline.  
+- Extended T-FFTRadNet: An extension that includes the prediction of Doppler values.  
+- ADAT-FFTRadNet: A variation where the encoder structure is modified, integrating the backbone of TransRadar for better performance.  
+
+Each model is trained and evaluated with different configurations of input data and hyperparameters.
 
 |          Model         |                description                   |      Train     |  Evaluation |
 |------------------------|----------------------------------------------|---------------|-----------------|
@@ -14,10 +18,10 @@ To train the model
 
 # Training
 
-Train the model with Optuna (hyper-parameter tuning)
+The models are trained using Optuna for hyperparameter tuning, which helps find the best model configuration.
 
 ## Hyperparameter tuning with optuna
-To do hyperparameter tuning
+To start hyperparameter tuning with Optuna, run the following command:
 ```
 $ python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/6-Train_optuna.py --config /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/config/RD_matlab_server_config.json --trials 2
 ```
@@ -25,7 +29,7 @@ $ python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/6-Train_optuna.py --config /
 --trials: indicate the number of trials you want to test 
 
 For the initial training, since the config files provided include normalization constants for each of the differing input types. 
-To obtain your own normalization constants you can run the following command within the dataset folder:
+To obtain the normalization constants for each input type, use the following command within the dataset folder:
 `$ python print_dataset_statistics.py`
 
 
@@ -89,22 +93,24 @@ $ python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/3-Evaluation_RARD_ADA.py--co
 
 ## Evaluation plot with IoU threshold 
 
-The graph in the thesis' rersults and insights
-1. testing dataset: T-FFTRadNet with RD input, T-FFTRadNet with ADC input and extended T-FFTRadNet with ADC input
+To generate plots with different IoU thresholds for testing and training datasets:
+1. Testing Dataset (T-FFTRadNet with RD and ADC input, Extended T-FFTRadNet with ADC input):
 ```
 $ python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/7-Evaluation_plot.py /imec/other/dl4ms/chu06/TFFTRadNet_detection_score_RD.txt /imec/other/dl4ms/chu06/TFFTRadNet_detection_score_ADC.txt /imec/other/dl4ms/chu06/TFFTRadNet_detection_score_ADC_RARD_lr1-3e.txt
 ```
 
-1. training dataset: T-FFTRadNet with ADC input, extended T-FFTRadNet with ADC input and  ADAT-FFTRadNet with ADC input
+2. Training Dataset (T-FFTRadNet with ADC input, Extended T-FFTRadNet with ADC input, ADAT-FFTRadNet with ADC input):
 ```
 $ python /imec/other/dl4ms/chu06/T_FFTRadNet/RadIal/7-Evaluation_plot.py /imec/other/dl4ms/chu06/TFFTRadNet_detection_score_ADC.txt /imec/other/dl4ms/chu06/TFFTRadNet_detection_score_ADC_RARD_lr1-3e.txt /imec/other/dl4ms/chu06/TFFTRadNet_detection_score_ADC_RARD_ADAblock.txt
 ```
 
 # Backup code
 
-For parallel computing implementation: 6-Train_optuna_lightning.py
+These scripts provide alternative or parallel implementations:
 
-For different weights loss for the RD and RA prediction map:  6-Train_optuna_RA3RD.py and 6-Train_optuna_RA3RD_ADA.py
+- For parallel computing implementation: 6-Train_optuna_lightning.py
+
+- For different weights loss in RD and RA prediction maps: 6-Train_optuna_RA3RD.py and 6-Train_optuna_RA3RD_ADA.py
 
 
 # Below are ReadME content from the original paper
